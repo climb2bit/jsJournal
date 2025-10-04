@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<h1 id = 'scoreBox'></h1>
+<style>
+    #balloon{position:absolute;-webkit-transition:all 0.2s;height:160px;}
+</style>
+<img id = 'balloon' src = 'Resources/b1.png'>
+<script>
+    balloon.addEventListener('click',clickedIt);
+    var score = 0, count = 0;
+
+    function clickedIt(){
+        score++;
+        scoreBox.innerHTML = 'Score: ' + score;
+        balloon.style.height = '1px';
+    }
+    function moveIt(){
+        balloon.style.height = '160px';
+        balloon.style.left = Math.random()*800+'px';
+        balloon.style.top = Math.random()*600+'px';
+        count++;
+        if(count==20){
+            alert('game over!');
+            clearInterval(timer);
+        }
+    }
+    var timer = setInterval(moveIt,1000);
+</script>
+</html>
