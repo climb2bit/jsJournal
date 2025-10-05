@@ -1,15 +1,38 @@
 <!doctype html>
 <html>
-<style>
-    div{width:640px;height:480px;
-        background:url(Resources/sea.png);}
-    img{display:none;}
-</style>
-<div>
-    <canvas id="gameCanvas" width="640" height = '480'></canvas>
-</div>
-<img id="fish" src="Resources/fish.png" />
-<img id="pipes" src="Resources/pipes.png" />
+    <head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Game Title - Fun Games!</title>
+    <link rel="stylesheet" href="Template/template.css">
+</head>
+<body>
+    <!-- Navigation Bar with Back Button -->
+    <div class="game-nav">
+        <a href="index.html" class="back-button">
+            <span class="back-arrow">←</span>
+            <span>Back to Games</span>
+        </a>
+    </div>
+
+    <!-- Your Game Content Here -->
+    <div class="game-container">
+        <h1 class="game-title">🎮 Fish-Mario! 🎮</h1>
+        
+        <div class="game-content">
+        <div>
+            <p style="width:640px; height:480px; background:url('Resources/sea.png')">
+                <canvas id="gameCanvas" width="640" height = '480'></canvas>
+                </p>
+            </div>
+            
+            <div style='display:none;'>
+                <img id="fish" src="Resources/fish.png" />
+                <img id="pipes" src="Resources/pipes.png" />
+            </div>
+        </div>
+    </div>
+
 <script>
     var ctx = gameCanvas.getContext("2d");
     var x=640, y=-160,fishY=220,ySpeed = 0, score = 0;
@@ -44,4 +67,5 @@
         }
     }
 </script>
+</body>
 </html>
