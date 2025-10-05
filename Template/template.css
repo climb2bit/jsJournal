@@ -1,0 +1,76 @@
+.game-nav {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1.1em;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    border: 3px solid white;
+}
+
+.back-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.back-button:active {
+    transform: translateY(-1px);
+}
+
+.back-arrow {
+    font-size: 1.3em;
+    transition: transform 0.3s;
+}
+
+.back-button:hover .back-arrow {
+    transform: translateX(-5px);
+}
+
+/* Example game container styling */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 800px;
+    max-height: 600px;
+    margin: 20px;
+}
+
+.game-title {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Your game content goes here */
+.game-content {
+    margin-top: 30px;
+}
