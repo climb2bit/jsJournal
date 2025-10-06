@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Game Title - Fun Games!</title>
+    <link rel="stylesheet" href="Template/template.css">
+</head>
+<body>
+    <!-- Navigation Bar with Back Button -->
+    <div class="game-nav">
+        <a href="index.html" class="back-button">
+            <span class="back-arrow">←</span>
+            <span>Back to Games</span>
+        </a>
+    </div>
+
+    <div class="game-container">
+        <h1 class="game-title">🐍 Trapped Snake 🐍</h1>
+        
+        <div class="game-content">
+
+<audio id='endMp3' src="Resources/low.mp3"></audio>
+<audio id="turnMp3" src="Resources/high.mp3"></audio>
+<div style="background-color:blue;height:480px;width:640px;">
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
+</div>
+<script>
+    var ctx=gameCanvas.getContext("2d");
+    var x=240, y=180, dir=90, score=0;
+    drawBackground()
+    function drawBackground(){
+        ctx.strokeStyle='orange';
+        ctx.lineWidth=40;
+        ctx.strokeRect(0,0,640,480)
+    }
+    var gameTimer=setInterval(mainLoop, 50);
+    function mainLoop(){
+        ctx.fillStyle='orange';
+        ctx.fillRect(x,y,9,9);
+        if(dir==90){x+=10;}
+        if(dir==180){y+=10;}
+        if(dir==-90){x-=10;}
+        if(dir==0){y-=10;}
+        checkPixelColor();
+        score++;
+        ctx.fillRect(0,0,100,20);
+        ctx.fillStyle='black';
+        ctx.font='20px Arial';
+        ctx.fillText("Score: "+score,2,16);
+    }
+    function checkPixelColor(){
+        var col=ctx.getImageData(x,y,1,1).data;
+        if(col[3]!=0){
+            endMp3.play();
+            clearInterval(gameTimer);
+            ctx.font='80px Arial';
+            ctx.fillText("Game Over!", 100, 250);
+        }
+    }
+    document.onkeydown=handleKey;
+    function handleKey(e){
+        var k=e.keyCode;
+        if(k==38){dir=0;}
+        if(k==39){dir=90;}
+        if(k==40){dir=180;}
+        if(k==37){dir=-90;}
+        turnMp3.currentTime=0;
+        turnMp3.play()        
+    }
+</script>
+</html>
