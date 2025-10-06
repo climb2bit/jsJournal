@@ -9,10 +9,13 @@
         #board{position:absolute;
         width:550px;height:450px;
         background-color:lightgreen;}
-        #bat{position:absolute;
-        top:420px; width:80px;height:20px;
+        #bat{position:relative;
+        top: 200px;
+        width:80px;height:20px;
         background-color:blue;}
-        #ball{position:absolute;
+        #ball{position:relative;
+        top: -200px;
+        left: -200px;
         width:48px;height:48px;
         border-radius:24px;
         background-color:yellow;}
@@ -28,38 +31,48 @@
         </a>
     </div>
     
-    <body onmousemove="moveBat(event)">
+    <!-- <body onmousemove="moveBat(event)">
+    
+    </body> -->
         <div id= "board"></div>
         <div id= "bat"></div>
         <div id= "ball"></div>
-    </body>
     <script>
-        var x=100, y=100, speedX=2, speedY=5, batX=0;
+        var x=-200, y=-200, speedX=2, speedY=5, batX=0;
 
-        function moveBat(event){
-            batX=event.clientX;
+        const mouseArea = document.getElementById('board');
+        mouseArea.addEventListener('mousemove', (event) => {
+            // mouseXSpan.textContent = event.clientX;
+            // mouseYSpan.textContent = event.clientY;
+            // console.log(event.clientX);
+            batX=event.clientX - 550; 
+            batX=Math.min(batX, 250);
+            batX=Math.max(batX, -200);
             bat.style.left=batX+'px';
-        }
+            // console.log(event.clientY);
+        });
+
         function moveBall(){
             x=x+speedX;
             y=y+speedY;
             ball.style.left=x+'px';
             ball.style.top=y+'px';
-            
-            if(x>530)speedX=-15;
-            if(x<0)speedX=15;
-            if(y<0)speedY=15;
-            if((y>372)&&(Math.abs(batX-x)<60)){
-                speedY=-15;
+
+            if(x < -280)speedX = 5;
+            if(x > 200) speedX = -5;
+            // if(x<0)speedX=15;
+            if(y < -200)speedY = 5;
+            if((y > 180)&&(Math.abs(batX -40 - x)<40)){
+                speedY = -5;
                 console.log('hit ', speedY);
             } 
-            if(y>450){
+            if(y > 250){
                 alert('game over!');
             clearInterval(timer);
         }
     }
 
-    var timer=setInterval(moveBall, 20);
+    var timer=setInterval(moveBall, 10);
 </script>
 </body>
 </html>
