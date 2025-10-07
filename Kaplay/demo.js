@@ -1,21 +1,13 @@
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 
-const ui = document.querySelector(".game-nav");
+const gameContainer = document.getElementById("game-content");
 
-new ResizeObserver(() => {
-  document.documentElement.style.setProperty(
-    "--scale",
-    Math.min(
-      ui.parentElement.offsetWidth / ui.offsetWidth,
-      ui.parentElement.offsetHeight / ui.offsetHeight
-    )
-  );
-}).observe(ui.parentElement);
-
+// Initialize Kaplay, passing the div as the canvas parent
 const k = kaplay({
-  width: 640,
-  height: 480,
-  letterbox: true,
+    width: gameContainer.offsetWidth,  // Match div's width
+    height: gameContainer.offsetHeight, // Match div's height
+    canvas: gameContainer,              // This is the key!
+    background: [0, 0, 0, 1],           // Black background
 });
 
 k.loadBean();
