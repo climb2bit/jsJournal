@@ -9,8 +9,7 @@
         #board{position:absolute;
         width:550px;height:450px;
         background-color:lightgreen;}
-        #bat{position:relative;
-        top: 200px;
+        #bat{position:absolute;        
         width:80px;height:20px;
         background-color:blue;}
         #ball{position:relative;
@@ -38,18 +37,15 @@
         <div id= "bat"></div>
         <div id= "ball"></div>
     <script>
-        var x=-200, y=-200, speedX=2, speedY=5, batX=0;
-
+        var speedX=3, speedY=3, batX=0, x = -200, y = -200;
         const mouseArea = document.getElementById('board');
+        const mouseAreaAbs = mouseArea.getBoundingClientRect();
+        bat.style.top = (mouseAreaAbs.bottom - 30)+'px';
+
         mouseArea.addEventListener('mousemove', (event) => {
-            // mouseXSpan.textContent = event.clientX;
-            // mouseYSpan.textContent = event.clientY;
-            // console.log(event.clientX);
-            batX=event.clientX - 550; 
-            batX=Math.min(batX, 250);
-            batX=Math.max(batX, -200);
-            bat.style.left=batX+'px';
-            // console.log(event.clientY);
+            // console.log(event.clientY);            
+            batX = event.clientX;
+            bat.style.left=Math.min(batX, mouseAreaAbs.right - 80)+'px';   
         });
 
         function moveBall(){
@@ -58,12 +54,12 @@
             ball.style.left=x+'px';
             ball.style.top=y+'px';
 
-            if(x < -280)speedX = 5;
-            if(x > 200) speedX = -5;
+            if(x < -(mouseArea.clientWidth/2) + 24) speedX = 3;
+            if(x > mouseArea.clientWidth/2 - 24) speedX = -3;
             // if(x<0)speedX=15;
-            if(y < -200)speedY = 5;
-            if((y > 180)&&(Math.abs(batX -40 - x)<40)){
-                speedY = -5;
+            if(y < -(mouseArea.clientHeight/2) + 24)speedY = 3;
+            if((y > (mouseArea.clientHeight/2 - 54))&&(Math.abs(batX - mouseAreaAbs.left - 275 - x)<40)){
+                speedY = -3;
                 console.log('hit ', speedY);
             } 
             if(y > 250){
@@ -71,7 +67,7 @@
             clearInterval(timer);
         }
     }
-
+    // document.onmousemove=function(){batX=event.clientX;}
     var timer=setInterval(moveBall, 10);
 </script>
 </body>
