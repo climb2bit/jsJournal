@@ -11,6 +11,10 @@ const k = kaplay({
 
 
 scene("game", () => {
+    // load font
+    // loadBitmapFont("happyfont", "../Resources/numbers.png", 100, 100, { chars: "0123456789" });
+    loadFont("numfonts", "../Resources/Match_Biker.ttf");
+
     // environment
     loadSprite("background-image", "../Resources/gameBackGround.jpg");
     add([
@@ -32,16 +36,17 @@ scene("game", () => {
 
     function spawnTree() {
         add([
-            rect(48, rand(24, 80)),
+            rect(48, rand(24, 50)),
             area(),
             outline(4),
             pos(width(), height() - 80),
             anchor("botleft"),
             color(rand(130, 255), 180, rand(100, 200)),
-            move(LEFT, 240),
+            move(LEFT, 200),
             "tree", // add a tag here
+            {passed: false}
         ]);
-        wait(rand(0.8, 1.5), () => {
+        wait(rand(2, 4), () => {
             spawnTree();
         });
     }
@@ -72,12 +77,26 @@ scene("game", () => {
 
     // add score
     let score = 0;
-    const scoreLabel = add([text(score), pos(24, 24)]);
+    const scoreLabel = add([
+        text(score),
+        pos(300, 24),  
+        scale(2),      
+        {font: "numfonts"},
+        color(255, 255, 0)
+    ]);
 
     // increment score every frame
-    onUpdate(() => {
-        score++;
+    onUpdate("tree", (tree) => {
+        if (tree.passed === false && tree.pos.x < player.pos.x) {
+            tree.passed = true;
+            score += 1;
+        }
         scoreLabel.text = score;
+
+        if (score === 11) {
+            // Do something when score reaches 10
+            go("win", score);
+        }
     });
 
     // collision
@@ -98,16 +117,42 @@ scene("lose", (score) => {
 
     // display score
     add([
-        text(score),
+        text("Score: " + score),
         pos(width() / 2, height() / 2 + 80),
-        scale(2),
+        scale(1.5),
         anchor("center"),
+        {font: "numfonts"},
+        color(255, 255, 0)
     ]);
 
     // go back to game with space is pressed
     onKeyPress("space", () => go("game"));
     onClick(() => go("game"));
 });
+
+scene("win", (score) => {
+    add([
+        sprite("monster"),
+        pos(width() / 2, height() / 2 - 80),
+        scale(0.8),
+        anchor("center"),
+    ]);
+
+    // display score
+    add([
+        text("Good Job!"),
+        pos(width() / 2, height() / 2 + 80),
+        scale(1.5),
+        anchor("center"),
+        {font: "numfonts"},
+        color(255, 0, 0), 
+    ]);
+
+    // go back to game with space is pressed
+    onKeyPress("space", () => go("game"));
+    onClick(() => go("game"));
+});
+
 
 go("game");
 
