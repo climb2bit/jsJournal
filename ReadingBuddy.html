@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Buddy - Interactive Learning Tool</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback, useRef, useEffect } = React;
+
+        // Lucide React icons as inline SVG components
+        const Loader2 = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+        );
+
+        const Upload = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+        );
+
+        const Volume2 = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+        );
+
+        const VolumeX = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+        );
+
+        const Zap = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+        );
+
+        const BookOpen = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+        );
+
+        const AlertCircle = ({ className }) => (
+            <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        );
+
+        const App = () => {
+            const [image, setImage] = useState(null);
+            const [words, setWords] = useState([]);
+            const [loadingState, setLoadingState] = useState(null);
+            const [error, setError] = useState(null);
+            const [currentWord, setCurrentWord] = useState(null);
+            const [speechSupported, setSpeechSupported] = useState(true);
+            const [ocrProgress, setOcrProgress] = useState(0);
+            
+            const imageRef = useRef(null);
+            const [imageBounds, setImageBounds] = useState({ top: 0, left: 0, width: 0, height: 0 });
+
+            useEffect(() => {
+                if (!('speechSynthesis' in window)) {
+                    setSpeechSupported(false);
+                    setError('Text-to-speech is not supported in your browser.');
+                }
+            }, []);
+
+            const calculateImageBounds = useCallback(() => {
+                if (!imageRef.current || !image) return;
+
+                const img = imageRef.current;
+                const container = img.parentNode;
+                if (!container) return;
+
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                const imageNaturalWidth = img.naturalWidth;
+                const imageNaturalHeight = img.naturalHeight;
+
+                if (containerWidth === 0 || containerHeight === 0 || imageNaturalWidth === 0) return;
+
+                const containerRatio = containerWidth / containerHeight;
+                const imageRatio = imageNaturalWidth / imageNaturalHeight;
+
+                let width, height, left, top;
+
+                if (imageRatio > containerRatio) {
+                    width = containerWidth;
+                    height = containerWidth / imageRatio;
+                    left = 0;
+                    top = (containerHeight - height) / 2;
+                } else {
+                    height = containerHeight;
+                    width = containerHeight * imageRatio;
+                    top = 0;
+                    left = (containerWidth - width) / 2;
+                }
+
+                setImageBounds({ top, left, width, height });
+            }, [image]);
+
+            useEffect(() => {
+                const imgElement = imageRef.current;
+                if (imgElement && image) {
+                    if (imgElement.complete) {
+                        calculateImageBounds();
+                    } else {
+                        imgElement.onload = calculateImageBounds;
+                    }
+                }
+            }, [image, calculateImageBounds]);
+
+            useEffect(() => {
+                window.addEventListener('resize', calculateImageBounds);
+                return () => window.removeEventListener('resize', calculateImageBounds);
+            }, [calculateImageBounds]);
+
+            const analyzeImage = useCallback(async (imageFile) => {
+                setLoadingState('ocr');
+                setError(null);
+                setWords([]);
+                setOcrProgress(0);
+                setImageBounds({ top: 0, left: 0, width: 0, height: 0 });
+
+                try {
+                    const result = await Tesseract.recognize(imageFile, 'eng', {
+                        logger: (m) => {
+                            if (m.status === 'recognizing text') {
+                                setOcrProgress(Math.round(m.progress * 100));
+                            }
+                        }
+                    });
+
+                    const { data } = result;
+                    
+                    // Extract words with bounding boxes
+                    const detectedWords = data.words
+                        .filter(w => w.text.trim().length > 0 && w.confidence > 50)
+                        .map(w => ({
+                            text: w.text,
+                            x: w.bbox.x0,
+                            y: w.bbox.y0,
+                            width: w.bbox.x1 - w.bbox.x0,
+                            height: w.bbox.y1 - w.bbox.y0,
+                            confidence: w.confidence
+                        }));
+
+                    if (detectedWords.length === 0) {
+                        setError('No text detected in the image. Please try a clearer photo with readable text.');
+                    } else {
+                        setWords(detectedWords);
+                    }
+                } catch (err) {
+                    console.error('OCR Error:', err);
+                    setError('Failed to analyze image. Please try again with a clearer photo of text.');
+                } finally {
+                    setLoadingState(null);
+                    setOcrProgress(0);
+                }
+            }, []);
+
+            const speakWord = useCallback((word) => {
+                if (!speechSupported) {
+                    setError('Text-to-speech is not supported in your browser.');
+                    return;
+                }
+
+                window.speechSynthesis.cancel();
+
+                setCurrentWord(word);
+                setLoadingState('tts');
+
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1;
+                utterance.volume = 1;
+
+                utterance.onend = () => {
+                    setLoadingState(null);
+                    setCurrentWord(null);
+                };
+
+                utterance.onerror = (e) => {
+                    console.error('Speech error:', e);
+                    setError('Failed to speak the word. Please try again.');
+                    setLoadingState(null);
+                    setCurrentWord(null);
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }, [speechSupported]);
+
+            const stopSpeech = useCallback(() => {
+                window.speechSynthesis.cancel();
+                setLoadingState(null);
+                setCurrentWord(null);
+            }, []);
+
+            const handleFileChange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    if (!file.type.startsWith('image/')) {
+                        setError('Please upload a valid image file.');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImage(reader.result);
+                        analyzeImage(file);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const isAnalyzing = loadingState === 'ocr';
+            const isSpeaking = loadingState === 'tts';
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-8">
+                    <div className="max-w-5xl mx-auto">
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl sm:text-5xl font-extrabold text-indigo-700 mb-3 flex items-center justify-center">
+                                <BookOpen className="w-10 h-10 mr-3 text-yellow-500" />
+                                Reading Buddy
+                            </h1>
+                            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+                                Snap a photo of any book page, then tap words to hear them pronounced!
+                            </p>
+                        </div>
+
+                        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+                            <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div className="text-sm text-blue-800">
+                                <p className="font-semibold mb-1">How it works:</p>
+                                <p>Upload a clear photo of printed text. Tesseract.js will detect all words locally in your browser and create clickable hotspots. Tap any word to hear it spoken aloud!</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white shadow-2xl rounded-2xl p-6 mb-6">
+                            <label 
+                                htmlFor="file-upload" 
+                                className={`flex flex-col items-center justify-center p-8 border-4 border-dashed rounded-xl cursor-pointer transition-all duration-300 ${
+                                    isAnalyzing 
+                                        ? 'border-gray-300 bg-gray-50' 
+                                        : 'border-indigo-400 hover:border-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:scale-[1.02]'
+                                }`}
+                            >
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={handleFileChange}
+                                    disabled={isAnalyzing}
+                                    className="hidden"
+                                />
+                                {isAnalyzing ? (
+                                    <div className="flex flex-col items-center text-indigo-600">
+                                        <Loader2 className="w-12 h-12 animate-spin mb-3" />
+                                        <span className="text-lg font-semibold">Reading the page...</span>
+                                        <span className="text-sm text-gray-500 mt-1">Progress: {ocrProgress}%</span>
+                                        <div className="w-64 h-2 bg-gray-200 rounded-full mt-3 overflow-hidden">
+                                            <div 
+                                                className="h-full bg-indigo-600 transition-all duration-300"
+                                                style={{ width: `${ocrProgress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center text-indigo-700">
+                                        <Upload className="w-12 h-12 mb-3" />
+                                        <span className="font-bold text-xl">Upload or Take a Photo</span>
+                                        <span className="text-sm text-gray-600 mt-2">PNG, JPG, or use your camera</span>
+                                    </div>
+                                )}
+                            </label>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50 border-2 border-red-300 text-red-800 p-4 rounded-xl mb-6 shadow-lg">
+                                <p className="font-semibold">⚠️ Error</p>
+                                <p className="text-sm">{error}</p>
+                            </div>
+                        )}
+
+                        {image && (
+                            <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
+                                <div className="relative">
+                                    <img
+                                        ref={imageRef}
+                                        src={image}
+                                        alt="Book page"
+                                        className="w-full h-auto object-contain"
+                                    />
+
+                                    <div 
+                                        className="absolute pointer-events-none"
+                                        style={{
+                                            top: imageBounds.top,
+                                            left: imageBounds.left,
+                                            width: imageBounds.width,
+                                            height: imageBounds.height,
+                                        }}
+                                    >
+                                        {words.map((word, index) => {
+                                            const imgNaturalWidth = imageRef.current?.naturalWidth || 1;
+                                            const imgNaturalHeight = imageRef.current?.naturalHeight || 1;
+                                            
+                                            const xPercent = (word.x / imgNaturalWidth) * 100;
+                                            const yPercent = (word.y / imgNaturalHeight) * 100;
+                                            const widthPercent = (word.width / imgNaturalWidth) * 100;
+                                            const heightPercent = (word.height / imgNaturalHeight) * 100;
+
+                                            if (widthPercent <= 0 || heightPercent <= 0) return null;
+
+                                            const isActive = currentWord === word.text;
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        left: `${xPercent}%`,
+                                                        top: `${yPercent}%`,
+                                                        width: `${widthPercent}%`,
+                                                        height: `${heightPercent}%`,
+                                                    }}
+                                                    onClick={() => speakWord(word.text)}
+                                                    disabled={isSpeaking}
+                                                    title={`Tap to hear: ${word.text}`}
+                                                    className={`
+                                                        pointer-events-auto z-10 border-2 transition-all duration-200 rounded
+                                                        ${isActive 
+                                                            ? 'bg-green-400/60 border-green-600 scale-105' 
+                                                            : 'bg-transparent border-transparent hover:bg-blue-300/40 hover:border-blue-500'
+                                                        }
+                                                        ${isSpeaking ? 'cursor-not-allowed' : 'cursor-pointer'}
+                                                        focus:outline-none focus:ring-4 focus:ring-blue-400/50
+                                                    `}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+
+                                    {isAnalyzing && (
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-20">
+                                            <div className="flex flex-col items-center text-white p-6 rounded-xl bg-indigo-600/90">
+                                                <Loader2 className="w-10 h-10 animate-spin mb-3" />
+                                                <span className="text-xl font-bold">Analyzing page...</span>
+                                                <span className="text-sm mt-2">{ocrProgress}%</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="p-5 bg-gradient-to-r from-indigo-50 to-blue-50 border-t-2 border-indigo-100">
+                                    <div className="flex justify-between items-center flex-wrap gap-3">
+                                        <div className="flex items-center">
+                                            <Zap className="w-5 h-5 mr-2 text-yellow-500" />
+                                            <span className="text-sm font-semibold text-gray-700">
+                                                {words.length} words detected
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3">
+                                            {isSpeaking ? (
+                                                <>
+                                                    <Volume2 className="w-6 h-6 text-green-500 animate-pulse" />
+                                                    <span className="text-sm font-bold text-green-600">
+                                                        Speaking: "{currentWord}"
+                                                    </span>
+                                                    <button
+                                                        onClick={stopSpeech}
+                                                        className="ml-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-semibold transition-colors"
+                                                    >
+                                                        <VolumeX className="w-4 h-4 inline mr-1" />
+                                                        Stop
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Volume2 className="w-5 h-5 text-gray-400" />
+                                                    <span className="text-sm text-gray-600">
+                                                        Tap any word to hear it
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-8 text-center text-sm text-gray-600">
+                            <p className="flex items-center justify-center gap-2">
+                                <BookOpen className="w-4 h-4" />
+                                Powered by Tesseract.js (OCR) & Web Speech API (TTS)
+                            </p>
+                            <p className="mt-1 text-xs text-gray-500">
+                                All processing happens in your browser - completely private and offline!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
