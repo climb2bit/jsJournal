@@ -17,6 +17,73 @@
     <div id="root"></div>
 
     <script type="module">
+        // 🧩 Derive AES-GCM key from passphrase
+        async function deriveKey(passphrase, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                "raw",
+                enc.encode(passphrase),
+                "PBKDF2",
+                false,
+                ["deriveKey"]
+            );
+            return crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt: salt,
+                    iterations: 100000,
+                    hash: "SHA-256"
+                },
+                keyMaterial,
+                { name: "AES-GCM", length: 256 },
+                false,
+                ["decrypt"]
+            );
+        }
+
+        // 🧮 Decrypt function (as provided)
+        async function decryptMessage() {
+            const encryptedMessage = document.getElementById('decrypt-message').value;
+            const passkey = document.getElementById('decrypt-passkey').value;
+            const errorDiv = document.getElementById('decrypt-error');            
+
+            errorDiv.classList.remove('show');            
+
+            if (!encryptedMessage || !passkey) {
+                errorDiv.textContent = 'Please enter both encrypted message and passkey';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const combined = Uint8Array.from(atob(encryptedMessage), c => c.charCodeAt(0));
+                const salt = combined.slice(0, 16);
+                const iv = combined.slice(16, 28);
+                const encrypted = combined.slice(28);
+
+                const key = await deriveKey(passkey, salt);
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: iv },
+                    key,
+                    encrypted
+                );
+
+                const decoder = new TextDecoder();
+                const message = decoder.decode(decrypted);
+
+                // ✅ Set global API key
+                apiKey = message;
+                render();
+
+            } catch (e) {
+                errorDiv.textContent = 'Decryption failed. Please check your passkey.';
+                errorDiv.classList.add('show');
+            }
+        }
+
+        // 🗝️ Predefined test purpose
+        const ENCRYPTED_BLOB = "vYAbz+RsyitGION6NsQKlvyesuruW0B378L/Rm4fECUsV8vGIQ4FRd+mvMXrdYolOcORP9YqRfnmci2D+v5ucS+QBfgIbKvYplPDjatdMlj7oxA=";
+
         // Helper functions for Gemini TTS
         const base64ToArrayBuffer = (base64) => {
             const binaryString = atob(base64);
@@ -61,9 +128,72 @@
             return new Blob([buffer], { type: 'audio/wav' });
         };
 
+        // Cache object to store API results
+        const cache = {
+            imageHash: null,
+            visionResult: null,
+            ttsAudioUrl: null,
+            
+            // Generate a simple hash from base64 image
+            hashImage: (base64) => {
+                let hash = 0;
+                for (let i = 0; i < Math.min(base64.length, 1000); i++) {
+                    const char = base64.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString(36);
+            },
+            
+            // Clear all cached data
+            clear: () => {
+                if (cache.ttsAudioUrl) {
+                    URL.revokeObjectURL(cache.ttsAudioUrl);
+                }
+                cache.imageHash = null;
+                cache.visionResult = null;
+                cache.ttsAudioUrl = null;
+            },
+            
+            // Check if image analysis is cached
+            hasVisionCache: (imageHash) => {
+                return cache.imageHash === imageHash && cache.visionResult !== null;
+            },
+            
+            // Store vision result
+            setVisionCache: (imageHash, words, fullText) => {
+                cache.imageHash = imageHash;
+                cache.visionResult = { words, fullText };
+            },
+            
+            // Get vision result
+            getVisionCache: () => {
+                return cache.visionResult;
+            },
+            
+            // Check if TTS is cached
+            hasTTSCache: () => {
+                return cache.ttsAudioUrl !== null;
+            },
+            
+            // Store TTS result
+            setTTSCache: (audioUrl) => {
+                if (cache.ttsAudioUrl) {
+                    URL.revokeObjectURL(cache.ttsAudioUrl);
+                }
+                cache.ttsAudioUrl = audioUrl;
+            },
+            
+            // Get TTS result
+            getTTSCache: () => {
+                return cache.ttsAudioUrl;
+            }
+        };
+
         // App State
         let apiKey = '';
         let image = null;
+        let currentImageHash = null;
         let words = [];
         let fullText = '';
         let loadingState = null;
@@ -73,6 +203,7 @@
         let isPlayingAll = false;
         let playAllAbort = false;
         let speechSupported = 'speechSynthesis' in window;
+        let cacheStats = { visionCacheHit: false, ttsCacheHit: false };
 
         const audioElement = new Audio();
 
@@ -118,7 +249,7 @@
             }
         };
 
-        // Analyze image with Gemini Vision
+        // Analyze image with Gemini Vision (with caching)
         const analyzeImage = async (base64Image) => {
             if (!apiKey) {
                 error = "Please enter your Gemini API key first.";
@@ -126,6 +257,23 @@
                 return;
             }
 
+            // Generate hash for the image
+            const imageHash = cache.hashImage(base64Image);
+            currentImageHash = imageHash;
+
+            // Check if we have cached result for this image
+            if (cache.hasVisionCache(imageHash)) {
+                console.log('✓ Using cached vision analysis result');
+                const cached = cache.getVisionCache();
+                words = cached.words;
+                fullText = cached.fullText;
+                cacheStats.visionCacheHit = true;
+                render();
+                setTimeout(calculateImageBounds, 0);
+                return;
+            }
+
+            cacheStats.visionCacheHit = false;
             loadingState = 'vision';
             error = null;
             words = [];
@@ -195,9 +343,13 @@
                     const parsed = JSON.parse(jsonText);
                     words = parsed.words.filter(w => w.text && w.x !== undefined);
                     fullText = parsed.fullText || '';
+                    
+                    // Cache the result
+                    cache.setVisionCache(imageHash, words, fullText);
+                    console.log('✓ Vision analysis result cached');
+                    
                     loadingState = null;
                     render();
-                    // Calculate bounds after render
                     setTimeout(calculateImageBounds, 0);
                 } else {
                     throw new Error("No data returned from API");
@@ -226,7 +378,6 @@
             currentWord = word;
             loadingState = 'tts-word';
             
-            // Update UI inline without full re-render
             updateWordHighlight(word);
             updateStatusDisplay();
 
@@ -318,7 +469,7 @@
             }
         };
 
-        // Play entire text with Gemini TTS
+        // Play entire text with Gemini TTS (with caching)
         const playEntireText = async () => {
             if (!fullText || !apiKey || isPlayingAll) return;
 
@@ -328,6 +479,30 @@
             error = null;
             updateStatusDisplay();
 
+            // Check if we have cached TTS audio
+            if (cache.hasTTSCache()) {
+                console.log('✓ Using cached TTS audio');
+                cacheStats.ttsCacheHit = true;
+                
+                audioElement.src = cache.getTTSCache();
+                
+                try {
+                    await audioElement.play();
+                    await new Promise(resolve => {
+                        audioElement.onended = resolve;
+                        audioElement.onerror = resolve;
+                    });
+                } catch (e) {
+                    console.error("Playback failed:", e);
+                } finally {
+                    isPlayingAll = false;
+                    loadingState = null;
+                    updateStatusDisplay();
+                }
+                return;
+            }
+
+            cacheStats.ttsCacheHit = false;
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: fullText }] }],
@@ -373,6 +548,10 @@
                     const wavBlob = pcmToWav(pcm16, sampleRate);
                     const url = URL.createObjectURL(wavBlob);
                     
+                    // Cache the audio URL
+                    cache.setTTSCache(url);
+                    console.log('✓ TTS audio cached');
+                    
                     audioElement.src = url;
                     
                     if (!playAllAbort) {
@@ -402,14 +581,14 @@
             playAllAbort = true;
             isPlayingAll = false;
             audioElement.pause();
-            audioElement.src = '';
+            audioElement.currentTime = 0;
             loadingState = null;
             updateStatusDisplay();
         };
 
         // Handle file upload
         const handleFileChange = (event) => {
-            const file = event.target.files[0];
+            const file = event.target.files[0];            
             if (!file) return;
 
             if (!file.type.startsWith('image/')) {
@@ -417,6 +596,10 @@
                 render();
                 return;
             }
+
+            // Clear cache when new image is uploaded
+            cache.clear();
+            console.log('✓ Cache cleared for new image');
 
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -433,6 +616,7 @@
             image = null;
             words = [];
             fullText = '';
+            cache.clear();
             render();
         };
 
@@ -460,30 +644,41 @@
                                 <div class="flex items-center mb-3">
                                     <i data-lucide="key" class="w-5 h-5 mr-2 text-indigo-600"></i>
                                     <label class="text-sm font-semibold text-gray-700">
-                                        Google Gemini API Key
+                                        Enter Passkey to Unlock API
                                     </label>
                                 </div>
+
                                 <input
                                     type="password"
-                                    id="apiKeyInput"
-                                    placeholder="Enter your API key"
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                    id="decrypt-passkey"
+                                    placeholder="Enter your passkey"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 />
-                                <p class="text-xs text-gray-500 mt-2">
-                                    Your key is stored in memory only. 
-                                    <a href="https://aistudio.google.com/apikey" target="_blank" class="text-indigo-600 underline hover:text-indigo-800">Get a free key</a>
-                                </p>
+
+                                <textarea
+                                    id="decrypt-message"
+                                    class="hidden"
+                                >${ENCRYPTED_BLOB}</textarea>
+
+                                <button
+                                    id="decrypt-button"
+                                    class="w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-200"
+                                >
+                                    Unlock Access
+                                </button>
+
+                                <div id="decrypt-error" class="hidden text-red-600 text-sm mt-2"></div>
                             </div>
                         ` : `
                             <div class="bg-green-50 border-2 border-green-300 rounded-xl p-4 mb-6 flex items-center justify-between">
                                 <div class="flex items-center text-green-700">
                                     <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
-                                    <span class="font-semibold">API Key Connected</span>
+                                    <span class="font-semibold">Access Unlocked (API Ready)</span>
                                 </div>
-                                <button id="clearApiKeyBtn" class="text-sm text-green-600 hover:text-green-800 underline font-medium">
-                                    Change Key
+                                <button id="lock-again" class="text-sm text-green-600 hover:text-green-800 underline font-medium">
+                                    Lock Again
                                 </button>
-                            </div>
+                            </div>                            
                         `}
 
                         <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
@@ -491,8 +686,24 @@
                             <div class="text-sm text-blue-800">
                                 <p class="font-semibold mb-1">How it works:</p>
                                 <p>Upload a photo → Gemini extracts text → Tap individual words (Web Speech) or play entire text (Gemini TTS)</p>
+                                <p class="mt-1 text-xs">✓ Results are cached - re-analyzing the same image or replaying audio won't use API calls!</p>
                             </div>
                         </div>
+
+                        ${cache.imageHash ? `
+                            <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-3 mb-6 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="database" class="w-5 h-5 text-purple-600"></i>
+                                    <div class="text-sm">
+                                        <span class="font-semibold text-purple-700">Cache Status:</span>
+                                        <span class="ml-2 text-purple-600">
+                                            Vision: ${cacheStats.visionCacheHit ? '✓ Cached' : '✓ Fresh'} 
+                                            ${cache.hasTTSCache() ? '| TTS: ✓ Cached' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
 
                         <div class="bg-white shadow-2xl rounded-2xl p-6 mb-6">
                             <label 
@@ -644,10 +855,21 @@
             lucide.createIcons();
 
             // Attach event listeners
-            const apiKeyInput = document.getElementById('apiKeyInput');
-            if (apiKeyInput) {
-                apiKeyInput.addEventListener('input', (e) => {
-                    apiKey = e.target.value;
+            // const apiKeyInput = document.getElementById('apiKeyInput');
+            // if (apiKeyInput) {
+            //     apiKeyInput.addEventListener('input', (e) => {
+            //         apiKey = e.target.value;
+            //     });
+            // }
+
+            const btn = document.getElementById('decrypt-button');
+            if (btn) btn.addEventListener('click', decryptMessage);
+
+            const lockBtn = document.getElementById('lock-again');
+            if (lockBtn) {
+                lockBtn.addEventListener('click', () => {
+                    apiKey = '';
+                    render();
                 });
             }
 
@@ -691,7 +913,7 @@
             if (image && words.length > 0) {
                 calculateImageBounds();
             }
-        });
+        });        
 
         // Initial render
         render();
