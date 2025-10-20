@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Buddy - Interactive Learning Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="module">
+        // Helper functions for Gemini TTS
+        const base64ToArrayBuffer = (base64) => {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        };
+
+        const pcmToWav = (pcmData, sampleRate) => {
+            const buffer = new ArrayBuffer(44 + pcmData.byteLength);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            const writeString = (s) => {
+                for (let i = 0; i < s.length; i++) {
+                    view.setUint8(offset++, s.charCodeAt(i));
+                }
+            };
+
+            writeString('RIFF');
+            view.setUint32(offset, 36 + pcmData.byteLength, true); offset += 4;
+            writeString('WAVE');
+            writeString('fmt ');
+            view.setUint32(offset, 16, true); offset += 4;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, sampleRate * 2, true); offset += 4;
+            view.setUint16(offset, 2, true); offset += 2;
+            view.setUint16(offset, 16, true); offset += 2;
+            writeString('data');
+            view.setUint32(offset, pcmData.byteLength, true); offset += 4;
+
+            const pcmBytes = new Uint8Array(pcmData.buffer);
+            for (let i = 0; i < pcmBytes.length; i++) {
+                view.setUint8(offset++, pcmBytes[i]);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        };
+
+        // App State
+        let apiKey = '';
+        let image = null;
+        let words = [];
+        let fullText = '';
+        let loadingState = null;
+        let error = null;
+        let currentWord = null;
+        let imageBounds = { top: 0, left: 0, width: 0, height: 0 };
+        let isPlayingAll = false;
+        let playAllAbort = false;
+        let speechSupported = 'speechSynthesis' in window;
+
+        const audioElement = new Audio();
+
+        // Calculate image bounds without triggering render
+        const calculateImageBounds = () => {
+            const img = document.getElementById('bookImage');
+            const container = document.getElementById('imageContainer');
+            if (!img || !container || !image) return;
+
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const imageNaturalWidth = img.naturalWidth;
+            const imageNaturalHeight = img.naturalHeight;
+
+            if (containerWidth === 0 || containerHeight === 0 || imageNaturalWidth === 0) return;
+
+            const containerRatio = containerWidth / containerHeight;
+            const imageRatio = imageNaturalWidth / imageNaturalHeight;
+
+            let width, height, left, top;
+
+            if (imageRatio > containerRatio) {
+                width = containerWidth;
+                height = containerWidth / imageRatio;
+                left = 0;
+                top = (containerHeight - height) / 2;
+            } else {
+                height = containerHeight;
+                width = containerHeight * imageRatio;
+                top = 0;
+                left = (containerWidth - width) / 2;
+            }
+
+            imageBounds = { top, left, width, height };
+            
+            // Update overlay position directly without full re-render
+            const overlay = document.getElementById('overlayContainer');
+            if (overlay) {
+                overlay.style.top = `${imageBounds.top}px`;
+                overlay.style.left = `${imageBounds.left}px`;
+                overlay.style.width = `${imageBounds.width}px`;
+                overlay.style.height = `${imageBounds.height}px`;
+            }
+        };
+
+        // Analyze image with Gemini Vision
+        const analyzeImage = async (base64Image) => {
+            if (!apiKey) {
+                error = "Please enter your Gemini API key first.";
+                render();
+                return;
+            }
+
+            loadingState = 'vision';
+            error = null;
+            words = [];
+            fullText = '';
+            render();
+
+            const userQuery = "Analyze the provided image of a book page. Return a JSON object with two fields: 1) 'words': an array of all detected words with their text and bounding box coordinates ('x', 'y', 'width', 'height') normalized to 0-1000 scale, and 2) 'fullText': a string containing all the text in reading order.";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [
+                        { text: userQuery },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                    ]
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            words: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        text: { type: "STRING" },
+                                        x: { type: "NUMBER" },
+                                        y: { type: "NUMBER" },
+                                        width: { type: "NUMBER" },
+                                        height: { type: "NUMBER" }
+                                    },
+                                    required: ["text", "x", "y", "width", "height"]
+                                }
+                            },
+                            fullText: { type: "STRING" }
+                        },
+                        required: ["words", "fullText"]
+                    }
+                }
+            };
+
+            try {
+                let response;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status !== 429) break;
+                    console.log(`Vision API throttled, retrying in ${2 ** attempt}s...`);
+                    await new Promise(resolve => setTimeout(resolve, 2 ** attempt * 1000));
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Vision API failed: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsed = JSON.parse(jsonText);
+                    words = parsed.words.filter(w => w.text && w.x !== undefined);
+                    fullText = parsed.fullText || '';
+                    loadingState = null;
+                    render();
+                    // Calculate bounds after render
+                    setTimeout(calculateImageBounds, 0);
+                } else {
+                    throw new Error("No data returned from API");
+                }
+            } catch (e) {
+                console.error("Vision Error:", e);
+                error = "Failed to analyze image. Check your API key and try again.";
+                words = [];
+                fullText = '';
+                loadingState = null;
+                render();
+            }
+        };
+
+        // Speak single word with Web Speech API
+        const speakWord = (word) => {
+            if (!speechSupported) {
+                error = 'Text-to-speech is not supported in your browser.';
+                render();
+                return;
+            }
+
+            if (loadingState === 'tts-word') return;
+
+            window.speechSynthesis.cancel();
+            currentWord = word;
+            loadingState = 'tts-word';
+            
+            // Update UI inline without full re-render
+            updateWordHighlight(word);
+            updateStatusDisplay();
+
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.rate = 0.8;
+            utterance.pitch = 1.1;
+            utterance.volume = 1;
+
+            utterance.onend = () => {
+                loadingState = null;
+                currentWord = null;
+                updateWordHighlight(null);
+                updateStatusDisplay();
+            };
+
+            utterance.onerror = (e) => {
+                console.error('Speech error:', e);
+                error = 'Failed to speak the word. Please try again.';
+                loadingState = null;
+                currentWord = null;
+                render();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        };
+
+        // Update word highlight without full re-render
+        const updateWordHighlight = (activeWord) => {
+            const buttons = document.querySelectorAll('[data-word-index]');
+            buttons.forEach((button, index) => {
+                const wordText = words[index]?.text;
+                const isActive = activeWord === wordText;
+                
+                if (isActive) {
+                    button.className = 'pointer-events-auto z-10 border-2 transition-all duration-200 rounded bg-green-400/60 border-green-600 scale-105 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-400/50';
+                } else {
+                    button.className = 'pointer-events-auto z-10 border-2 transition-all duration-200 rounded bg-transparent border-transparent hover:bg-blue-300/40 hover:border-blue-500 cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-400/50';
+                }
+            });
+        };
+
+        // Update status display without full re-render
+        const updateStatusDisplay = () => {
+            const statusContainer = document.getElementById('statusDisplay');
+            if (!statusContainer) return;
+
+            const isSpeakingWord = loadingState === 'tts-word';
+            const isSpeakingAll = loadingState === 'tts-all';
+
+            if (isSpeakingWord) {
+                statusContainer.innerHTML = `
+                    <i data-lucide="volume-2" class="w-6 h-6 text-green-500 animate-pulse"></i>
+                    <span class="text-sm font-bold text-green-600">
+                        "${currentWord}"
+                    </span>
+                `;
+            } else if (isSpeakingAll) {
+                statusContainer.innerHTML = `
+                    <i data-lucide="volume-2" class="w-6 h-6 text-blue-500 animate-pulse"></i>
+                    <span class="text-sm font-bold text-blue-600">
+                        Reading page...
+                    </span>
+                `;
+            } else {
+                statusContainer.innerHTML = `
+                    <i data-lucide="volume-2" class="w-5 h-5 text-gray-400"></i>
+                    <span class="text-sm text-gray-600">
+                        Tap any word
+                    </span>
+                `;
+            }
+            
+            lucide.createIcons();
+            
+            // Update play button
+            const playBtn = document.getElementById('playAllBtn');
+            if (playBtn) {
+                playBtn.disabled = isSpeakingWord;
+                playBtn.className = `w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
+                    isSpeakingAll 
+                        ? 'bg-red-500 hover:bg-red-600 text-white' 
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-gray-300 disabled:cursor-not-allowed'
+                }`;
+                playBtn.innerHTML = `
+                    <i data-lucide="${isSpeakingAll ? 'square' : 'play'}" class="w-5 h-5 mr-2"></i>
+                    ${isSpeakingAll ? 'Stop Reading' : 'Read Entire Page (Gemini TTS)'}
+                `;
+                lucide.createIcons();
+            }
+        };
+
+        // Play entire text with Gemini TTS
+        const playEntireText = async () => {
+            if (!fullText || !apiKey || isPlayingAll) return;
+
+            isPlayingAll = true;
+            playAllAbort = false;
+            loadingState = 'tts-all';
+            error = null;
+            updateStatusDisplay();
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: fullText }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Leda" }
+                        }
+                    }
+                }
+            };
+
+            try {
+                let response;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.status !== 429) break;
+                    console.log(`TTS throttled, retrying in ${2 ** attempt}s...`);
+                    await new Promise(resolve => setTimeout(resolve, 2 ** attempt * 1000));
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`TTS API failed: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType?.startsWith("audio/L16")) {
+                    const match = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = match ? parseInt(match[1], 10) : 24000;
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const url = URL.createObjectURL(wavBlob);
+                    
+                    audioElement.src = url;
+                    
+                    if (!playAllAbort) {
+                        await audioElement.play().catch(e => console.error("Playback failed:", e));
+                        await new Promise(resolve => {
+                            audioElement.onended = resolve;
+                            audioElement.onerror = resolve;
+                        });
+                    }
+                } else {
+                    throw new Error("Invalid audio response from API");
+                }
+            } catch (e) {
+                console.error("TTS Error:", e);
+                error = "Failed to generate audio. Check your API key.";
+                render();
+                return;
+            } finally {
+                isPlayingAll = false;
+                loadingState = null;
+                updateStatusDisplay();
+            }
+        };
+
+        // Stop playing entire text
+        const stopPlayingAll = () => {
+            playAllAbort = true;
+            isPlayingAll = false;
+            audioElement.pause();
+            audioElement.src = '';
+            loadingState = null;
+            updateStatusDisplay();
+        };
+
+        // Handle file upload
+        const handleFileChange = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                error = "Please upload a valid image file.";
+                render();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result.split(',')[1];
+                image = reader.result;
+                analyzeImage(base64String);
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Clear API key
+        const clearApiKey = () => {
+            apiKey = '';
+            image = null;
+            words = [];
+            fullText = '';
+            render();
+        };
+
+        // Render function
+        const render = () => {
+            const isAnalyzing = loadingState === 'vision';
+            const isSpeakingWord = loadingState === 'tts-word';
+            const isSpeakingAll = loadingState === 'tts-all';
+
+            document.getElementById('root').innerHTML = `
+                <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-8">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="text-center mb-8">
+                            <h1 class="text-4xl sm:text-5xl font-extrabold text-indigo-700 mb-3 flex items-center justify-center">
+                                <i data-lucide="book-open" class="w-10 h-10 mr-3 text-yellow-500"></i>
+                                Reading Buddy
+                            </h1>
+                            <p class="text-lg text-gray-700 max-w-2xl mx-auto">
+                                Snap a photo of any book page, tap words to hear them, or play the entire text!
+                            </p>
+                        </div>
+
+                        ${!apiKey ? `
+                            <div class="bg-white shadow-xl rounded-2xl p-6 mb-6">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="key" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                                    <label class="text-sm font-semibold text-gray-700">
+                                        Google Gemini API Key
+                                    </label>
+                                </div>
+                                <input
+                                    type="password"
+                                    id="apiKeyInput"
+                                    placeholder="Enter your API key"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                                />
+                                <p class="text-xs text-gray-500 mt-2">
+                                    Your key is stored in memory only. 
+                                    <a href="https://aistudio.google.com/apikey" target="_blank" class="text-indigo-600 underline hover:text-indigo-800">Get a free key</a>
+                                </p>
+                            </div>
+                        ` : `
+                            <div class="bg-green-50 border-2 border-green-300 rounded-xl p-4 mb-6 flex items-center justify-between">
+                                <div class="flex items-center text-green-700">
+                                    <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                                    <span class="font-semibold">API Key Connected</span>
+                                </div>
+                                <button id="clearApiKeyBtn" class="text-sm text-green-600 hover:text-green-800 underline font-medium">
+                                    Change Key
+                                </button>
+                            </div>
+                        `}
+
+                        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+                            <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-semibold mb-1">How it works:</p>
+                                <p>Upload a photo → Gemini extracts text → Tap individual words (Web Speech) or play entire text (Gemini TTS)</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white shadow-2xl rounded-2xl p-6 mb-6">
+                            <label 
+                                for="file-upload" 
+                                class="flex flex-col items-center justify-center p-8 border-4 border-dashed rounded-xl cursor-pointer transition-all duration-300 ${
+                                    isAnalyzing 
+                                        ? 'border-gray-300 bg-gray-50' 
+                                        : 'border-indigo-400 hover:border-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:scale-[1.02]'
+                                }"
+                            >
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    ${isAnalyzing ? 'disabled' : ''}
+                                    class="hidden"
+                                />
+                                ${isAnalyzing ? `
+                                    <div class="flex flex-col items-center text-indigo-600">
+                                        <i data-lucide="loader-2" class="w-12 h-12 animate-spin mb-3"></i>
+                                        <span class="text-lg font-semibold">Analyzing page...</span>
+                                    </div>
+                                ` : `
+                                    <div class="flex flex-col items-center text-indigo-700">
+                                        <i data-lucide="upload" class="w-12 h-12 mb-3"></i>
+                                        <span class="font-bold text-xl">Upload or Take a Photo</span>
+                                        <span class="text-sm text-gray-600 mt-2">PNG, JPG, or use your camera</span>
+                                    </div>
+                                `}
+                            </label>
+                        </div>
+
+                        ${error ? `
+                            <div class="bg-red-50 border-2 border-red-300 text-red-800 p-4 rounded-xl mb-6 shadow-lg">
+                                <p class="font-semibold flex items-center">
+                                    <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
+                                    Error
+                                </p>
+                                <p class="text-sm mt-1">${error}</p>
+                            </div>
+                        ` : ''}
+
+                        ${image ? `
+                            <div class="bg-white shadow-2xl rounded-2xl overflow-hidden">
+                                <div id="imageContainer" class="relative">
+                                    <img
+                                        id="bookImage"
+                                        src="${image}"
+                                        alt="Book page"
+                                        class="w-full h-auto object-contain"
+                                        onload="window.calculateImageBounds()"
+                                    />
+
+                                    <div 
+                                        id="overlayContainer"
+                                        style="position: absolute; top: ${imageBounds.top}px; left: ${imageBounds.left}px; width: ${imageBounds.width}px; height: ${imageBounds.height}px; pointer-events: none;"
+                                    >
+                                        ${words.map((word, index) => {
+                                            const x = word.x / 10;
+                                            const y = word.y / 10;
+                                            const width = word.width / 10;
+                                            const height = word.height / 10;
+
+                                            if (width <= 0 || height <= 0) return '';
+
+                                            const isActive = currentWord === word.text;
+
+                                            return `
+                                                <button
+                                                    data-word-index="${index}"
+                                                    ${isSpeakingWord || isSpeakingAll ? 'disabled' : ''}
+                                                    title="Tap to hear: ${word.text}"
+                                                    style="position: absolute; left: ${x}%; top: ${y}%; width: ${width}%; height: ${height}%;"
+                                                    class="pointer-events-auto z-10 border-2 transition-all duration-200 rounded ${
+                                                        isActive 
+                                                            ? 'bg-green-400/60 border-green-600 scale-105' 
+                                                            : 'bg-transparent border-transparent hover:bg-blue-300/40 hover:border-blue-500'
+                                                    } ${
+                                                        (isSpeakingWord || isSpeakingAll) ? 'cursor-not-allowed' : 'cursor-pointer'
+                                                    } focus:outline-none focus:ring-4 focus:ring-blue-400/50"
+                                                ></button>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                </div>
+
+                                <div class="p-5 bg-gradient-to-r from-indigo-50 to-blue-50 border-t-2 border-indigo-100">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <div class="flex items-center">
+                                            <i data-lucide="zap" class="w-5 h-5 mr-2 text-yellow-500"></i>
+                                            <span class="text-sm font-semibold text-gray-700">
+                                                ${words.length} words detected
+                                            </span>
+                                        </div>
+                                        
+                                        <div id="statusDisplay" class="flex items-center gap-2">
+                                            ${isSpeakingWord ? `
+                                                <i data-lucide="volume-2" class="w-6 h-6 text-green-500 animate-pulse"></i>
+                                                <span class="text-sm font-bold text-green-600">
+                                                    "${currentWord}"
+                                                </span>
+                                            ` : isSpeakingAll ? `
+                                                <i data-lucide="volume-2" class="w-6 h-6 text-blue-500 animate-pulse"></i>
+                                                <span class="text-sm font-bold text-blue-600">
+                                                    Reading page...
+                                                </span>
+                                            ` : `
+                                                <i data-lucide="volume-2" class="w-5 h-5 text-gray-400"></i>
+                                                <span class="text-sm text-gray-600">
+                                                    Tap any word
+                                                </span>
+                                            `}
+                                        </div>
+                                    </div>
+
+                                    ${words.length > 0 ? `
+                                        <button
+                                            id="playAllBtn"
+                                            ${isSpeakingWord ? 'disabled' : ''}
+                                            class="w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
+                                                isSpeakingAll 
+                                                    ? 'bg-red-500 hover:bg-red-600 text-white' 
+                                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-gray-300 disabled:cursor-not-allowed'
+                                            }"
+                                        >
+                                            <i data-lucide="${isSpeakingAll ? 'square' : 'play'}" class="w-5 h-5 mr-2"></i>
+                                            ${isSpeakingAll ? 'Stop Reading' : 'Read Entire Page (Gemini TTS)'}
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="mt-8 text-center text-sm text-gray-600">
+                            <p class="flex items-center justify-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                Powered by Gemini Vision, Web Speech API & Gemini TTS
+                            </p>
+                            <p class="mt-1 text-xs text-gray-500">
+                                Individual words use browser TTS • Full page uses Gemini's natural voice
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+
+            // Attach event listeners
+            const apiKeyInput = document.getElementById('apiKeyInput');
+            if (apiKeyInput) {
+                apiKeyInput.addEventListener('input', (e) => {
+                    apiKey = e.target.value;
+                });
+            }
+
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput) {
+                fileInput.addEventListener('change', handleFileChange);
+            }
+
+            const wordButtons = document.querySelectorAll('[data-word-index]');
+            wordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = parseInt(button.getAttribute('data-word-index'));
+                    if (!isNaN(index) && words[index]) {
+                        speakWord(words[index].text);
+                    }
+                });
+            });
+
+            const playAllBtn = document.getElementById('playAllBtn');
+            if (playAllBtn) {
+                playAllBtn.addEventListener('click', () => {
+                    if (isSpeakingAll) {
+                        stopPlayingAll();
+                    } else {
+                        playEntireText();
+                    }
+                });
+            }
+
+            const clearApiKeyBtn = document.getElementById('clearApiKeyBtn');
+            if (clearApiKeyBtn) {
+                clearApiKeyBtn.addEventListener('click', clearApiKey);
+            }
+        };
+
+        // Make functions globally accessible
+        window.calculateImageBounds = calculateImageBounds;
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (image && words.length > 0) {
+                calculateImageBounds();
+            }
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
