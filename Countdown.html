@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cute Countdown Events</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, #f9f6ff, #f7ecff);
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: 2.4em;
+    margin-top: 25px;
+    color: #6b4ce6;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 25px auto;
+    gap: 20px;
+    max-width: 900px;
+    padding: 0 15px;
+  }
+
+  .event-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    width: 320px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+
+  .event-card:hover {
+    transform: translateY(-5px) scale(1.02);
+  }
+
+  .event-name {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #6b4ce6;
+    margin-bottom: 10px;
+  }
+
+  .countdown {
+    font-size: 1.2em;
+    margin: 10px 0;
+  }
+
+  .highlight {
+    font-weight: 600;
+    color: #ff66b3;
+  }
+
+  .completed {
+    font-size: 1.4em;
+    color: #4caf50;
+    animation: pop 0.5s ease forwards;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* Floating hearts */
+  .heart {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: pink;
+    transform: rotate(45deg);
+    animation: floatUp 6s linear infinite;
+    opacity: 0.7;
+    z-index: 0;
+  }
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: pink;
+    border-radius: 50%;
+  }
+  .heart::before { top: -10px; left: 0; }
+  .heart::after { left: -10px; top: 0; }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(45deg); opacity: 0.7; }
+    100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.8em;
+      margin: 20px 0;
+    }
+    .container {
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .event-card {
+      width: 85%;
+      padding: 20px;
+    }
+    .event-name {
+      font-size: 1.3em;
+    }
+    .countdown {
+      font-size: 1.1em;
+    }
+  }
+
+  /* Sparkle effect */
+  .sparkle {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkleFade 1s ease-out forwards;
+    z-index: 10;
+  }
+
+  @keyframes sparkleFade {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<h1> Countdown to Special Moments </h1>
+<div class="container">
+  <div class="event-card" id="event1">
+    <div class="event-name">🎉 Daddy Retirement</div>
+    <div class="countdown"></div>
+  </div>
+  <div class="event-card" id="event2">
+    <div class="event-name">📘 Buddy PSLE Completion</div>
+    <div class="countdown"></div>
+  </div>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+
+<script>
+  const events = [
+    { 
+      id: "event1", 
+      name: "Daddy Retirement", 
+      target: new Date("2029-07-01T00:00:00"), 
+      message: "🎊 Congratulations! 🎊"
+    },
+    { 
+      id: "event2", 
+      name: "Buddy PSLE Completion", 
+      target: new Date("2026-10-01T00:00:00"), 
+      message: "🌟 Well done!! 🌟"
+    }
+  ];
+
+  function updateCountdown() {
+    const now = new Date();
+    events.forEach(evt => {
+      const diff = evt.target - now;
+      const card = document.getElementById(evt.id);
+      const countdownDiv = card.querySelector('.countdown');
+      if (diff <= 0) {
+        countdownDiv.innerHTML = `<div class="completed">${evt.message}</div>`;
+        startConfetti();
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const weeks = Math.floor(days / 7);
+      countdownDiv.innerHTML = `
+        <div><span class="highlight">${weeks}</span> weeks left</div>
+        <div><span class="highlight">${days}</span> days left</div>
+      `;
+    });
+  }
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // Floating hearts
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.animationDuration = 5 + Math.random() * 3 + 's';
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 8000);
+  }
+  setInterval(createHeart, 700);
+
+  // Confetti
+  const canvas = document.getElementById('confettiCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let confetti = [];
+  function startConfetti() {
+    for (let i = 0; i < 100; i++) {
+      confetti.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        r: Math.random() * 6 + 2,
+        d: Math.random() * 10 + 10,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`,
+        tilt: Math.random() * 10 - 10
+      });
+    }
+  }
+
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach(c => {
+      ctx.beginPath();
+      ctx.fillStyle = c.color;
+      ctx.ellipse(c.x, c.y, c.r, c.r / 2, Math.random(), 0, Math.PI * 2);
+      ctx.fill();
+    });
+    updateConfetti();
+    requestAnimationFrame(drawConfetti);
+  }
+
+  function updateConfetti() {
+    confetti.forEach(c => {
+      c.y += Math.cos(c.d) + 2;
+      c.x += Math.sin(c.d);
+      if (c.y > canvas.height) {
+        c.y = -10;
+        c.x = Math.random() * canvas.width;
+      }
+    });
+  }
+  drawConfetti();
+
+  // Touch sparkle
+  document.addEventListener('touchstart', e => {
+    const touches = e.touches;
+    for (let t of touches) {
+      createSparkle(t.clientX, t.clientY);
+    }
+  });
+  document.addEventListener('mousemove', e => {
+    if (Math.random() < 0.1) createSparkle(e.clientX, e.clientY);
+  });
+
+  function createSparkle(x, y) {
+    const sparkle = document.createElement('div');
+    sparkle.classList.add('sparkle');
+    sparkle.style.left = x + 'px';
+    sparkle.style.top = y + 'px';
+    sparkle.style.background = `hsl(${Math.random() * 360}, 80%, 70%)`;
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 1000);
+  }
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+
+</body>
+</html>
