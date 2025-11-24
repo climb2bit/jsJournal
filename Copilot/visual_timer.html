@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kids Visual Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --bg: #F7F9FC;
+            --banana: #F1C40F;
+            --train: #3498DB;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            background-image: radial-gradient(#e6e9f0 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Nunito', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 15px;
+            width: 100%;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary);
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #FFE66D;
+        }
+
+        /* --- TIMER VISUALS --- */
+        .timer-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-linecap: round;
+        }
+
+        /* --- CHARACTERS --- */
+        .character-wrapper {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Animation States */
+        .character-wrapper.breathing {
+            animation: breathe 3s infinite ease-in-out;
+        }
+
+        .character-wrapper.done {
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        /* 1. THE BLOB (CSS) */
+        .blob {
+            width: 160px;
+            height: 160px;
+            background: var(--secondary);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1);
+        }
+        .character-wrapper.active .blob { background: var(--primary); }
+        .character-wrapper.done .blob { background: var(--accent); }
+
+        .blob-face { position: absolute; width: 100%; height: 100%; }
+        .blob-eyes {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; gap: 35px;
+        }
+        .blob-eye { width: 18px; height: 18px; background: var(--dark); border-radius: 50%; position: relative; }
+        .blob-eye::after { content: ''; position: absolute; top: 3px; left: 3px; width: 6px; height: 6px; background: white; border-radius: 50%; }
+        .blob-mouth {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 15px; border-bottom: 4px solid var(--dark); border-radius: 0 0 15px 15px;
+        }
+        .character-wrapper.done .blob-mouth { width: 40px; height: 25px; background: var(--dark); border-bottom: none; border-radius: 0 0 20px 20px; }
+
+        /* 2. THE BANANA (SVG) */
+        .banana-svg { width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.1)); display: none;}
+        .character-wrapper.active .banana-body { fill: #FF9F43; } /* Ripe/Hot */
+        
+        /* 3. THE TRAIN (SVG) */
+        .train-svg { width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.1)); display: none;}
+
+        /* Helpers to show/hide characters */
+        .show-blob .blob { display: block; }
+        .show-blob .banana-svg, .show-blob .train-svg { display: none; }
+
+        .show-banana .banana-svg { display: block; }
+        .show-banana .blob, .show-banana .train-svg { display: none; }
+
+        .show-train .train-svg { display: block; }
+        .show-train .blob, .show-train .banana-svg { display: none; }
+
+
+        /* --- TIME DISPLAY --- */
+        .time-display {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.5rem;
+            color: var(--dark);
+            margin-top: -10px;
+            z-index: 10;
+            text-align: center;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            width: 100%;
+            padding: 20px 20px 30px 20px;
+            background: white;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Custom Input Area */
+        .custom-input-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .input-group label {
+            font-size: 0.7rem;
+            color: #95a5a6;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        .time-input {
+            width: 70px;
+            padding: 10px;
+            border: 2px solid #eff2f7;
+            border-radius: 15px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--dark);
+            background: #eff2f7;
+            outline: none;
+        }
+        
+        .time-input:focus { border-color: var(--secondary); background: #fff; }
+        
+        /* Remove arrows from number input */
+        .time-input::-webkit-outer-spin-button,
+        .time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .colon { font-size: 1.5rem; font-weight: bold; color: var(--dark); padding-top: 15px;}
+
+        .presets {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-preset {
+            background: #eff2f7;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn-preset:active { transform: scale(0.95); background: #dce2eb;}
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .btn-main {
+            flex: 1;
+            padding: 15px;
+            border-radius: 20px;
+            border: none;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn-main:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .btn-start { background-color: var(--secondary); }
+        .btn-reset { background-color: #95a5a6; max-width: 70px; font-size: 1.5rem; padding: 0;}
+
+        /* --- ANIMATIONS --- */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Fun Timer!</h1>
+    </header>
+
+    <div class="timer-container">
+        <!-- Progress Ring SVG -->
+        <svg class="progress-ring" width="280" height="280">
+            <circle class="progress-ring__circle-bg" stroke="#e6e9f0" stroke-width="18" fill="transparent" r="120" cx="140" cy="140"/>
+            <circle class="progress-ring__circle" stroke="#FF6B6B" stroke-width="18" fill="transparent" r="120" cx="140" cy="140"/>
+        </svg>
+
+        <!-- Character Wrapper -->
+        <div class="character-wrapper show-blob" id="charWrapper">
+            
+            <!-- 1. The Blob -->
+            <div class="blob">
+                <div class="blob-face">
+                    <div class="blob-eyes">
+                        <div class="blob-eye"></div>
+                        <div class="blob-eye"></div>
+                    </div>
+                    <div class="blob-mouth"></div>
+                </div>
+            </div>
+
+            <!-- 2. The Banana SVG -->
+            <svg class="banana-svg" viewBox="0 0 100 100">
+                <path class="banana-body" d="M20,80 Q50,95 80,30 Q70,20 60,25 Q40,70 20,65 Z" fill="#FFE66D" stroke="#2C3E50" stroke-width="3" stroke-linejoin="round"/>
+                <!-- Stem -->
+                <path d="M80,30 L85,25" stroke="#5D4037" stroke-width="5" stroke-linecap="round"/>
+                <!-- Face -->
+                <circle cx="40" cy="60" r="3" fill="#2C3E50"/>
+                <circle cx="55" cy="55" r="3" fill="#2C3E50"/>
+                <path d="M43,68 Q48,73 53,67" fill="none" stroke="#2C3E50" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+            <!-- 3. The Train SVG -->
+            <svg class="train-svg" viewBox="0 0 100 100">
+                <!-- Smoke -->
+                <circle cx="30" cy="20" r="5" fill="#dfe6e9" opacity="0.8"/>
+                <circle cx="35" cy="12" r="7" fill="#dfe6e9" opacity="0.6"/>
+                <!-- Body -->
+                <rect x="20" y="35" width="60" height="40" rx="5" fill="#3498DB" stroke="#2C3E50" stroke-width="3"/>
+                <rect x="60" y="20" width="15" height="20" fill="#E74C3C" stroke="#2C3E50" stroke-width="3"/>
+                <!-- Window/Face Area -->
+                <rect x="25" y="40" width="25" height="20" rx="3" fill="#A9D8FF"/>
+                <!-- Face inside window -->
+                <circle cx="32" cy="48" r="2" fill="#2C3E50"/>
+                <circle cx="43" cy="48" r="2" fill="#2C3E50"/>
+                <path d="M34,54 Q37.5,57 41,54" fill="none" stroke="#2C3E50" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- Wheels -->
+                <circle cx="30" cy="80" r="10" fill="#2C3E50"/>
+                <circle cx="30" cy="80" r="5" fill="#95a5a6"/>
+                <circle cx="70" cy="80" r="10" fill="#2C3E50"/>
+                <circle cx="70" cy="80" r="5" fill="#95a5a6"/>
+            </svg>
+
+        </div>
+    </div>
+
+    <div class="time-display" id="timeText">00:00</div>
+
+    <div class="controls">
+        
+        <div class="custom-input-row">
+            <div class="input-group">
+                <label>MIN</label>
+                <input type="number" id="inputMin" class="time-input" value="05" min="0" max="99" onchange="updateFromInput()">
+            </div>
+            <div class="colon">:</div>
+            <div class="input-group">
+                <label>SEC</label>
+                <input type="number" id="inputSec" class="time-input" value="00" min="0" max="59" onchange="updateFromInput()">
+            </div>
+        </div>
+
+        <div class="presets">
+            <button class="btn-preset" onclick="setPreset(1)">1m</button>
+            <button class="btn-preset" onclick="setPreset(5)">5m</button>
+            <button class="btn-preset" onclick="setPreset(10)">10m</button>
+            <button class="btn-preset" onclick="setPreset(30)">30m</button>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-main btn-reset" onclick="resetTimer()">↺</button>
+            <button class="btn-main btn-start" id="startBtn" onclick="toggleTimer()">START</button>
+        </div>
+    </div>
+
+    <canvas id="confetti"></canvas>
+
+    <script>
+        // --- DOM ELEMENTS ---
+        const circle = document.querySelector('.progress-ring__circle');
+        const timeText = document.getElementById('timeText');
+        const startBtn = document.getElementById('startBtn');
+        const charWrapper = document.getElementById('charWrapper');
+        const inputMin = document.getElementById('inputMin');
+        const inputSec = document.getElementById('inputSec');
+        
+        // --- VARIABLES ---
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        let timerInterval = null;
+        let totalSeconds = 300; 
+        let remainingSeconds = 300;
+        let isRunning = false;
+        
+        // Character Styles
+        const charClasses = ['show-blob', 'show-banana', 'show-train'];
+
+        // --- INITIAL SETUP ---
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = 0;
+        
+        // Randomize character on load
+        randomizeCharacter();
+
+        // --- AUDIO CONTEXT ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playWinSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+            // Happy Melody
+            const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50]; // C E G C G C
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                
+                // Staccato envelope
+                gain.gain.setValueAtTime(0, now + i*0.15);
+                gain.gain.linearRampToValueAtTime(0.1, now + i*0.15 + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + i*0.15 + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now + i*0.15);
+                osc.stop(now + i*0.15 + 0.4);
+            });
+        }
+
+        // --- RANDOM CHARACTER LOGIC ---
+        function randomizeCharacter() {
+            // Remove all character classes
+            charWrapper.classList.remove(...charClasses);
+            // Pick random
+            const randomClass = charClasses[Math.floor(Math.random() * charClasses.length)];
+            // Add new
+            charWrapper.classList.add(randomClass);
+        }
+
+        // --- TIMER LOGIC ---
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function formatTime(val) {
+            return val < 10 ? `0${val}` : val;
+        }
+
+        function updateDisplay(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            timeText.innerText = `${formatTime(m)}:${formatTime(s)}`;
+        }
+
+        // Called when user types in inputs
+        function updateFromInput() {
+            pauseTimer();
+            let m = parseInt(inputMin.value) || 0;
+            let s = parseInt(inputSec.value) || 0;
+            
+            // Clamp seconds logic
+            if (s > 59) { s = 59; inputSec.value = 59; }
+            if (m < 0) { m = 0; inputMin.value = 0; }
+            if (s < 0) { s = 0; inputSec.value = 0; }
+
+            totalSeconds = (m * 60) + s;
+            // Ensure at least 1 second
+            if(totalSeconds === 0) totalSeconds = 1; 
+            
+            remainingSeconds = totalSeconds;
+            
+            // Update formatting in inputs (add leading zeros)
+            inputMin.value = formatTime(m);
+            inputSec.value = formatTime(s);
+            
+            updateDisplay(remainingSeconds);
+            setProgress(100);
+            resetUI();
+        }
+
+        // Called by preset buttons
+        function setPreset(minutes) {
+            inputMin.value = formatTime(minutes);
+            inputSec.value = "00";
+            updateFromInput();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (remainingSeconds <= 0) return;
+            
+            isRunning = true;
+            startBtn.innerText = "PAUSE";
+            startBtn.style.backgroundColor = "var(--primary)";
+            
+            charWrapper.classList.add('breathing');
+            charWrapper.classList.add('active');
+            charWrapper.classList.remove('done');
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay(remainingSeconds);
+                
+                const percent = (remainingSeconds / totalSeconds) * 100;
+                setProgress(percent);
+
+                if (remainingSeconds <= 0) {
+                    timerFinished();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            startBtn.innerText = "RESUME";
+            startBtn.style.backgroundColor = "var(--secondary)";
+            charWrapper.classList.remove('breathing');
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            randomizeCharacter(); // New character on reset!
+            updateFromInput(); // Resets to whatever is in the input boxes
+            startBtn.innerText = "START";
+            resetUI();
+        }
+
+        function timerFinished() {
+            pauseTimer();
+            remainingSeconds = 0;
+            updateDisplay(0);
+            setProgress(0);
+            
+            startBtn.innerText = "DONE!";
+            startBtn.style.backgroundColor = "#95a5a6";
+            
+            charWrapper.classList.remove('active');
+            charWrapper.classList.remove('breathing');
+            charWrapper.classList.add('done');
+            
+            playWinSound();
+            startConfetti();
+        }
+
+        function resetUI() {
+            charWrapper.classList.remove('done');
+            charWrapper.classList.remove('active');
+            charWrapper.classList.remove('breathing');
+            stopConfetti();
+        }
+
+        // --- CONFETTI ---
+        const canvas = document.getElementById("confetti");
+        const ctx = canvas.getContext("2d");
+        let confettiLoop;
+        let particles = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function startConfetti() {
+            particles = [];
+            for(let i=0; i<120; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+                    size: Math.random() * 10 + 5,
+                    speed: Math.random() * 6 + 2,
+                    wobble: Math.random() * 2 * Math.PI
+                });
+            }
+            animateConfetti();
+        }
+
+        function stopConfetti() {
+            cancelAnimationFrame(confettiLoop);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.y += p.speed;
+                p.wobble += 0.1;
+                
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x + Math.cos(p.wobble) * 30, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.y > canvas.height) particles[i].y = -50;
+            });
+            confettiLoop = requestAnimationFrame(animateConfetti);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Init
+        updateFromInput();
+        startBtn.innerText = "START";
+
+    </script>
+</body>
+</html>
