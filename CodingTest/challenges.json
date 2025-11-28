@@ -53,7 +53,7 @@
     "title": "Reverse Every Other Character",
     "description": "Write a function that returns a new string made of **every second character reversed**.<br>Example: <code>reverse_every_other(\"abcdef\")</code> → take characters at positions 0,2,4 = <code>a c e</code> → reversed → <code>eca</code>.",
     "starterCode": "def reverse_every_other(text):\n    # Write code here\n    return \"\"",
-    "testCode": "try:\n    assert reverse_every_other(\"abcdef\") == \"eca\"\n    assert reverse_every_other(\"python\") == \"nhp\"\n    print('Correct! Great work with slicing and logic!')\nexcept AssertionError:\n    print('Incorrect. Remember to grab every other character, then reverse.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "testCode": "try:\n    assert reverse_every_other(\"abcdef\") == \"eca\"\n    assert reverse_every_other(\"python\") == \"otp\"\n    print('Correct! Great work with slicing and logic!')\nexcept AssertionError:\n    print('Incorrect. Remember to grab every other character, then reverse.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   },
   {
     "id": 9,
