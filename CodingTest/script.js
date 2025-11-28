@@ -34,6 +34,7 @@ async function loadChallenges() {
         const response = await fetch('challenges.json');
         if (!response.ok) throw new Error("Could not load challenges.json");
         challenges = await response.json();
+        challenges = challenges.reverse().slice(0, 10);
         loadLevel(0);
     } catch (err) {
         descEl.innerHTML = `<span style="color:red">Error: ${err.message}</span>`;
