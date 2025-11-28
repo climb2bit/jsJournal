@@ -33,5 +33,40 @@
     "description": "Write a function <code>count_coins(cents)</code>. Return the minimum number of coins needed to make that amount using Quarters (25), Dimes (10), Nickels (5), and Pennies (1).<br>Example: 31 cents = 1 Quarter + 1 Nickel + 1 Penny = 3 coins.",
     "starterCode": "def count_coins(cents):\n    coins = 0\n    # Subtract 25, then 10, then 5... or use division\n    return coins",
     "testCode": "try:\n    assert count_coins(31) == 3, '31 cents = 25+5+1 (3 coins)'\n    assert count_coins(50) == 2, '50 cents = 25+25 (2 coins)'\n    assert count_coins(4) == 4, '4 cents = 1+1+1+1 (4 coins)'\n    print('Correct! You are hired as the cashier.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 6,
+    "title": "Sum of Even Numbers Only",
+    "description": "Write a function that takes a list of numbers and returns the sum of **only the even numbers**.<br>Example: <code>sum_evens([1,2,3,4,6])</code> should return <code>12</code> (because 2 + 4 + 6 = 12).",
+    "starterCode": "def sum_evens(nums):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert sum_evens([1,2,3,4,6]) == 12\n    assert sum_evens([10,11,12]) == 22\n    print('Correct! Nice job working with loops and conditions!')\nexcept AssertionError:\n    print('Incorrect. Remember to only add even numbers using n % 2 == 0.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 7,
+    "title": "Find the Longest Word",
+    "description": "Create a function that returns the longest word in a list of strings.<br>If two words are the same length, return the first one.<br>Example: <code>longest_word([\"cat\", \"giraffe\", \"lion\"])</code> should return <code>\"giraffe\"</code>.",
+    "starterCode": "def longest_word(words):\n    # Write code here\n    return \"\"",
+    "testCode": "try:\n    assert longest_word([\"cat\", \"giraffe\", \"lion\"]) == \"giraffe\"\n    assert longest_word([\"hi\", \"hello\", \"hey\"]) == \"hello\"\n    print('Correct! Strings and logic looking great!')\nexcept AssertionError:\n    print('Incorrect. Make sure you track the longest word found.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 8,
+    "title": "Reverse Every Other Character",
+    "description": "Write a function that returns a new string made of **every second character reversed**.<br>Example: <code>reverse_every_other(\"abcdef\")</code> → take characters at positions 0,2,4 = <code>a c e</code> → reversed → <code>eca</code>.",
+    "starterCode": "def reverse_every_other(text):\n    # Write code here\n    return \"\"",
+    "testCode": "try:\n    assert reverse_every_other(\"abcdef\") == \"eca\"\n    assert reverse_every_other(\"python\") == \"nhp\"\n    print('Correct! Great work with slicing and logic!')\nexcept AssertionError:\n    print('Incorrect. Remember to grab every other character, then reverse.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 9,
+    "title": "Count Numbers Greater Than Average",
+    "description": "Write a function that returns how many numbers in a list are **greater than the average** of the list.<br>Example: <code>count_above_avg([2,4,6,8])</code> → average is 5 → numbers above average are 6 and 8 → returns <code>2</code>.",
+    "starterCode": "def count_above_avg(nums):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert count_above_avg([2,4,6,8]) == 2\n    assert count_above_avg([10,10,10]) == 0\n    print('Correct! Math + logic = success!')\nexcept AssertionError:\n    print('Incorrect. Make sure you compute the average first.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 10,
+    "title": "Multiplication Table String",
+    "description": "Create a function that returns a string showing the multiplication table of a number from 1 to 10.<br>Each line should look like <code>n x i = result</code> and end with a newline <code>\\n</code>.<br>Example for 3:<br><code>\"3 x 1 = 3\\n3 x 2 = 6\\n...\"</code>",
+    "starterCode": "def mult_table(n):\n    # Write code here\n    return \"\"",
+    "testCode": "try:\n    expected = \"\"\n    for i in range(1, 11):\n        expected += f\"3 x {i} = {3*i}\\n\"\n    assert mult_table(3) == expected\n    print('Correct! Loops and formatting mastered!')\nexcept AssertionError:\n    print('Incorrect. Ensure each line follows the exact format: \"n x i = result\" with a newline.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
