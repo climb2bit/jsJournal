@@ -1,6 +1,7 @@
 let pyodide = null;
 let challenges = [];
 let currentChallengeIndex = 0;
+
 const runBtn = document.getElementById('run-btn');
 const outputConsole = document.getElementById('output-console');
 const editor = document.getElementById('code-editor');
@@ -11,6 +12,7 @@ const nextBtn = document.getElementById('next-btn');
 const levelIndicator = document.getElementById('level-indicator');
 const loadingIndicator = document.getElementById('loading-indicator');
 
+// 1. Initialize Pyodide
 async function main() {
     try {
         pyodide = await loadPyodide();
@@ -26,6 +28,7 @@ async function main() {
     }
 }
 
+// 2. Load Challenges
 async function loadChallenges() {
     try {
         const response = await fetch('challenges.json');
@@ -37,6 +40,7 @@ async function loadChallenges() {
     }
 }
 
+// 3. Load specific level
 function loadLevel(index) {
     currentChallengeIndex = index;
     const challenge = challenges[index];
@@ -50,32 +54,64 @@ function loadLevel(index) {
     nextBtn.disabled = index === challenges.length - 1;
 }
 
+// --- THE FIX: Helper to indent code so it fits inside the Python 'try' block ---
+function indentCode(code) {
+    if (!code) return "";
+    // Split the code by lines, add 4 spaces to every line, and join them back
+    return code.split('\n').map(line => '    ' + line).join('\n');
+}
+
+// 4. Run Code Logic
 runBtn.addEventListener('click', async () => {
     outputConsole.textContent = "Running...";
     outputConsole.style.color = "#00ff00";
+    
     const userCode = editor.value;
     const currentTest = challenges[currentChallengeIndex].testCode;
+
+    // We wrap everything in a Python try-except block.
+    // Because of this wrapper, we MUST indent the user's code and test code.
     const completeScript = `
 import sys
 from io import StringIO
+
+# Capture output (print statements)
 old_stdout = sys.stdout
 sys.stdout = mystdout = StringIO()
+
 try:
-${userCode}
-${currentTest}
+${indentCode(userCode)}
+
+    # --- Run Verification Code ---
+${indentCode(currentTest)}
+
 except Exception as e:
+    # If anything goes wrong, print the error
     print(f"Error: {e}")
+
+# Restore output and get the result
 sys.stdout = old_stdout
 mystdout.getvalue()
     `;
+
     try {
         const result = await pyodide.runPythonAsync(completeScript);
         outputConsole.textContent = result;
-        if(result.includes("Correct!")) outputConsole.style.color = "#00ff00";
-        else outputConsole.style.color = "#ff6b6b";
-    } catch (err) { outputConsole.textContent = err; }
+        
+        // Coloring based on result
+        if(result.includes("Correct!")) {
+             outputConsole.style.color = "#00ff00";
+        } else if (result.includes("Error") || result.includes("Incorrect")) {
+             outputConsole.style.color = "#ff6b6b";
+        }
+    } catch (err) {
+        outputConsole.textContent = err;
+        outputConsole.style.color = "#ff6b6b";
+    }
 });
 
+// Navigation
 prevBtn.addEventListener('click', () => loadLevel(currentChallengeIndex - 1));
 nextBtn.addEventListener('click', () => loadLevel(currentChallengeIndex + 1));
+
 main();

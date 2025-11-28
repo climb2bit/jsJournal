@@ -1,23 +1,37 @@
 [
   {
     "id": 1,
-    "title": "Say Hello!",
-    "description": "Write a function named <code>say_hello</code> that returns the string 'Hello World'.",
-    "starterCode": "def say_hello():\n    # Write your code here\n    return \"\"",
-    "testCode": "try:\n    assert say_hello() == 'Hello World'\n    print('Correct! Great job.')\nexcept AssertionError:\n    print('Incorrect. The function should return \"Hello World\".')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "title": "The Calendar Master",
+    "description": "Write a function <code>is_leap_year(year)</code>. <br>Rules: <br>1. If a year is divisible by 4, it is a leap year.<br>2. BUT if it is divisible by 100, it is NOT.<br>3. UNLESS it is also divisible by 400. <br>Return <code>True</code> or <code>False</code>.",
+    "starterCode": "def is_leap_year(year):\n    # Use if, elif, else and %\n    return False",
+    "testCode": "try:\n    assert is_leap_year(2024) == True, '2024 is a leap year (div by 4)'\n    assert is_leap_year(1900) == False, '1900 is NOT a leap year (div by 100)'\n    assert is_leap_year(2000) == True, '2000 IS a leap year (div by 400)'\n    assert is_leap_year(2023) == False, '2023 is not a leap year'\n    print('Correct! You mastered the logic.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
   },
   {
     "id": 2,
-    "title": "Super Adder",
-    "description": "Write a function named <code>add_numbers</code> that takes two numbers (a and b) and returns their sum.",
-    "starterCode": "def add_numbers(a, b):\n    return 0",
-    "testCode": "try:\n    assert add_numbers(2, 3) == 5\n    assert add_numbers(10, 10) == 20\n    print('Correct! Math genius.')\nexcept AssertionError:\n    print('Incorrect. 2+3 should be 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "title": "The Math Factory",
+    "description": "Write a function <code>factorial(n)</code> that calculates the factorial of a number. <br>Example: factorial(5) is 5 * 4 * 3 * 2 * 1 = 120. <br>Hint: Use a loop or recursion.",
+    "starterCode": "def factorial(n):\n    result = 1\n    # Write a loop here\n    return result",
+    "testCode": "try:\n    assert factorial(5) == 120, '5! should be 120'\n    assert factorial(3) == 6, '3! should be 6'\n    assert factorial(0) == 1, '0! should be 1'\n    print('Correct! Math Factory is running.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
   },
   {
     "id": 3,
-    "title": "Is it Big?",
-    "description": "Write a function <code>is_big</code> that returns <code>True</code> if the number is greater than 100, and <code>False</code> otherwise.",
-    "starterCode": "def is_big(number):\n    # Use an if statement\n    return False",
-    "testCode": "try:\n    assert is_big(101) == True\n    assert is_big(50) == False\n    print('Correct! Logic master.')\nexcept AssertionError:\n    print('Incorrect logic.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "title": "Mirror Mirror",
+    "description": "Write a function <code>check_palindrome(word)</code>. It should return <code>True</code> if the word is the same forwards and backwards (like 'racecar' or 'madam'), and <code>False</code> otherwise.",
+    "starterCode": "def check_palindrome(word):\n    # Hint: You can reverse strings with slicing [::-1]\n    return False",
+    "testCode": "try:\n    assert check_palindrome('racecar') == True, 'racecar is a palindrome'\n    assert check_palindrome('hello') == False, 'hello is not a palindrome'\n    assert check_palindrome('madam') == True, 'madam is a palindrome'\n    print('Correct! Your logic is perfectly reflected.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 4,
+    "title": "The Duplicate Destroyer",
+    "description": "Write a function <code>unique_numbers(numbers)</code> that takes a list of numbers and returns a new list with **no duplicates**.<br>Example: [1, 1, 2, 3, 3] should become [1, 2, 3].",
+    "starterCode": "def unique_numbers(numbers):\n    new_list = []\n    # Loop through numbers and add to new_list only if not there\n    return new_list",
+    "testCode": "try:\n    result = unique_numbers([1, 1, 2, 2, 3])\n    assert set(result) == {1, 2, 3}, 'Should contain 1, 2, 3'\n    assert len(result) == 3, 'Should verify length'\n    assert unique_numbers([]) == [], 'Empty list check'\n    print('Correct! Duplicates destroyed.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 5,
+    "title": "The Cashier (Greedy Logic)",
+    "description": "Write a function <code>count_coins(cents)</code>. Return the minimum number of coins needed to make that amount using Quarters (25), Dimes (10), Nickels (5), and Pennies (1).<br>Example: 31 cents = 1 Quarter + 1 Nickel + 1 Penny = 3 coins.",
+    "starterCode": "def count_coins(cents):\n    coins = 0\n    # Subtract 25, then 10, then 5... or use division\n    return coins",
+    "testCode": "try:\n    assert count_coins(31) == 3, '31 cents = 25+5+1 (3 coins)'\n    assert count_coins(50) == 2, '50 cents = 25+25 (2 coins)'\n    assert count_coins(4) == 4, '4 cents = 1+1+1+1 (4 coins)'\n    print('Correct! You are hired as the cashier.')\nexcept AssertionError as e:\n    print(f'Incorrect: {e}')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
