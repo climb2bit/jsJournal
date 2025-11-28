@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "Say Hello!",
+    "description": "Write a function named <code>say_hello</code> that returns the string 'Hello World'.",
+    "starterCode": "def say_hello():\n    # Write your code here\n    return \"\"",
+    "testCode": "try:\n    assert say_hello() == 'Hello World'\n    print('Correct! Great job.')\nexcept AssertionError:\n    print('Incorrect. The function should return \"Hello World\".')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 2,
+    "title": "Super Adder",
+    "description": "Write a function named <code>add_numbers</code> that takes two numbers (a and b) and returns their sum.",
+    "starterCode": "def add_numbers(a, b):\n    return 0",
+    "testCode": "try:\n    assert add_numbers(2, 3) == 5\n    assert add_numbers(10, 10) == 20\n    print('Correct! Math genius.')\nexcept AssertionError:\n    print('Incorrect. 2+3 should be 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 3,
+    "title": "Is it Big?",
+    "description": "Write a function <code>is_big</code> that returns <code>True</code> if the number is greater than 100, and <code>False</code> otherwise.",
+    "starterCode": "def is_big(number):\n    # Use an if statement\n    return False",
+    "testCode": "try:\n    assert is_big(101) == True\n    assert is_big(50) == False\n    print('Correct! Logic master.')\nexcept AssertionError:\n    print('Incorrect logic.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  }
+]

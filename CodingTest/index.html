@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Kid Coder</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐍 Python Kid Coder</h1>
+            <div id="loading-indicator">Loading Python Engine... Please wait.</div>
+        </header>
+        <main>
+            <div class="panel instructions-panel">
+                <div class="nav-buttons">
+                    <button id="prev-btn" disabled>← Previous</button>
+                    <span id="level-indicator">Level 1</span>
+                    <button id="next-btn">Next →</button>
+                </div>
+                <h2 id="challenge-title">Loading...</h2>
+                <p id="challenge-desc">Please ensure you are running this via a local server.</p>
+                <div class="output-area">
+                    <h3>Result:</h3>
+                    <pre id="output-console">Waiting for code run...</pre>
+                </div>
+            </div>
+            <div class="panel editor-panel">
+                <textarea id="code-editor" spellcheck="false"></textarea>
+                <button id="run-btn" disabled>▶ Run Code</button>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
