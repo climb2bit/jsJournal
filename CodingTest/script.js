@@ -50,7 +50,7 @@ function loadLevel(index) {
     editor.value = challenge.starterCode;
     outputConsole.textContent = "Ready to run...";
     outputConsole.style.color = "#00ff00";
-    levelIndicator.textContent = `Level ${index + 1} / ${challenges.length}`;
+    levelIndicator.textContent = `Question ${index + 1} / ${challenges.length}`;
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === challenges.length - 1;
 }
