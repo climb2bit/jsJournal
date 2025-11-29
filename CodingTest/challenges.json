@@ -68,5 +68,40 @@
     "description": "Create a function that returns a string showing the multiplication table of a number from 1 to 10.<br>Each line should look like <code>n x i = result</code> and end with a newline <code>\\n</code>.<br>Example for 3:<br><code>\"3 x 1 = 3\\n3 x 2 = 6\\n...\"</code>",
     "starterCode": "def mult_table(n):\n    # Write code here\n    return \"\"",
     "testCode": "try:\n    expected = \"\"\n    for i in range(1, 11):\n        expected += f\"3 x {i} = {3*i}\\n\"\n    assert mult_table(3) == expected\n    print('Correct! Loops and formatting mastered!')\nexcept AssertionError:\n    print('Incorrect. Ensure each line follows the exact format: \"n x i = result\" with a newline.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 11,
+    "title": "Pizza Party Calculator",
+    "description": "It's pizza time! Write a function that takes a dictionary of friends and their pizza slice counts, and returns a tuple: <code>(total_slices, hungriest_friend)</code>.<br>Example: <code>pizza_party({\"Sam\": 3, \"Alex\": 5, \"Jordan\": 2})</code> returns <code>(10, \"Alex\")</code>",
+    "starterCode": "def pizza_party(friends):\n    # Write code here\n    return (0, \"\")",
+    "testCode": "try:\n    assert pizza_party({\"Sam\": 3, \"Alex\": 5, \"Jordan\": 2}) == (10, \"Alex\")\n    assert pizza_party({\"Emma\": 7, \"Liam\": 4}) == (11, \"Emma\")\n    assert pizza_party({\"Pat\": 6}) == (6, \"Pat\")\n    print('Correct! Pizza party statistics calculated perfectly! 🍕')\nexcept AssertionError:\n    print('Oops! Make sure to sum all slices and find who ate the most.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 12,
+    "title": "Robot Name Validator",
+    "description": "You're programming robots! Their names must follow the pattern: 2 uppercase letters, then 3 digits.<br>Valid: <code>AB123</code>, Invalid: <code>A1B23</code><br>Write a function using regex that returns <code>True</code> if valid, <code>False</code> otherwise.",
+    "starterCode": "import re\n\ndef is_valid_robot(name):\n    # Write code here\n    return False",
+    "testCode": "try:\n    assert is_valid_robot(\"AB123\") == True\n    assert is_valid_robot(\"XY999\") == True\n    assert is_valid_robot(\"A1B23\") == False\n    assert is_valid_robot(\"ABC12\") == False\n    assert is_valid_robot(\"ab123\") == False\n    print('Correct! All robots validated successfully! 🤖')\nexcept AssertionError:\n    print('Not quite. Remember: exactly 2 UPPERCASE letters, then exactly 3 digits.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 13,
+    "title": "Magic Number Pyramid",
+    "description": "Create a function that builds a pyramid of numbers! Given a height, return a list where each level contains numbers from 1 to that level.<br>Example: <code>build_pyramid(3)</code> returns <code>[[1], [1, 2], [1, 2, 3]]</code>",
+    "starterCode": "def build_pyramid(height):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert build_pyramid(3) == [[1], [1, 2], [1, 2, 3]]\n    assert build_pyramid(1) == [[1]]\n    assert build_pyramid(4) == [[1], [1, 2], [1, 2, 3], [1, 2, 3, 4]]\n    print('Correct! Your pyramid stands tall and proud! 🏛️')\nexcept AssertionError:\n    print('Not quite. Each level should have numbers from 1 up to that level number.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 14,
+    "title": "Treasure Chest Sorter",
+    "description": "You found treasure chests! Each chest has a name and gold coins (tuple format). Sort them by gold amount (most first), but only return chests with more than 50 coins.<br>Example: <code>sort_treasure([(\"Ruby\", 100), (\"Pearl\", 30), (\"Diamond\", 75)])</code> returns <code>[(\"Ruby\", 100), (\"Diamond\", 75)]</code>",
+    "starterCode": "def sort_treasure(chests):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert sort_treasure([(\"Ruby\", 100), (\"Pearl\", 30), (\"Diamond\", 75)]) == [(\"Ruby\", 100), (\"Diamond\", 75)]\n    assert sort_treasure([(\"Gold\", 25), (\"Silver\", 40)]) == []\n    assert sort_treasure([(\"Emerald\", 60), (\"Sapphire\", 90), (\"Topaz\", 55)]) == [(\"Sapphire\", 90), (\"Emerald\", 60), (\"Topaz\", 55)]\n    print('Correct! You sorted the treasure like a pro pirate! 🏴‍☠️💰')\nexcept AssertionError:\n    print('Not quite. Filter chests with >50 coins, then sort by coin amount (highest first).')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 15,
+    "title": "Secret Agent Code Breaker",
+    "description": "You're a secret agent! Create a function that takes a secret message and returns only the words that start with a vowel (a, e, i, o, u).<br>Example: <code>decode_message(\"apple runs in orbit\")</code> should return <code>[\"apple\", \"in\", \"orbit\"]</code>",
+    "starterCode": "def decode_message(message):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert decode_message(\"apple runs in orbit\") == [\"apple\", \"in\", \"orbit\"]\n    assert decode_message(\"hello world\") == []\n    assert decode_message(\"every agent operates undercover\") == [\"every\", \"agent\", \"operates\", \"undercover\"]\n    print('Correct! You cracked the secret code! 🕵️')\nexcept AssertionError:\n    print('Not quite, agent. Check if each word starts with a, e, i, o, or u.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
