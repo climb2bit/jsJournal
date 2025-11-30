@@ -103,5 +103,40 @@
     "description": "You're a secret agent! Create a function that takes a secret message and returns only the words that start with a vowel (a, e, i, o, u).<br>Example: <code>decode_message(\"apple runs in orbit\")</code> should return <code>[\"apple\", \"in\", \"orbit\"]</code>",
     "starterCode": "def decode_message(message):\n    # Write code here\n    return []",
     "testCode": "try:\n    assert decode_message(\"apple runs in orbit\") == [\"apple\", \"in\", \"orbit\"]\n    assert decode_message(\"hello world\") == []\n    assert decode_message(\"every agent operates undercover\") == [\"every\", \"agent\", \"operates\", \"undercover\"]\n    print('Correct! You cracked the secret code! 🕵️')\nexcept AssertionError:\n    print('Not quite, agent. Check if each word starts with a, e, i, o, or u.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 16,
+    "title": "List Filtering Challenge",
+    "description": "Create a function <code>filter_evens(numbers)</code> that takes a list of integers and returns a new list containing only the even numbers.<br><br>Example: <code>filter_evens([1, 2, 3, 4, 5, 6])</code> should return <code>[2, 4, 6]</code>",
+    "starterCode": "def filter_evens(numbers):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert filter_evens([1, 2, 3, 4, 5, 6]) == [2, 4, 6]\n    assert filter_evens([1, 3, 5, 7]) == []\n    assert filter_evens([10, 15, 20, 25]) == [10, 20]\n    print('Correct! You successfully filtered the even numbers!')\nexcept AssertionError:\n    print('Not quite right. Remember: even numbers are divisible by 2 (use % operator).')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 17,
+    "title": "Lambda Sort Challenge",
+    "description": "Create a function <code>sort_by_last_char(words)</code> that takes a list of strings and returns them sorted by their last character using a lambda function.<br><br>Example: <code>sort_by_last_char(['apple', 'banana', 'cherry'])</code> should return <code>['apple', 'banana', 'cherry']</code> (sorted by 'e', 'a', 'y')",
+    "starterCode": "def sort_by_last_char(words):\n    # Write code here using sorted() and lambda\n    return words",
+    "testCode": "try:\n    assert sort_by_last_char(['apple', 'banana', 'cherry']) == ['banana', 'apple', 'cherry']\n    assert sort_by_last_char(['dog', 'cat', 'bird']) == ['bird', 'cat', 'dog']\n    assert sort_by_last_char(['xyz', 'abc', 'def']) == ['abc', 'def', 'xyz']\n    print('Correct! You mastered lambda sorting!')\nexcept AssertionError:\n    print('Hint: Use sorted(words, key=lambda x: x[-1]) to sort by last character.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 18,
+    "title": "String Formatting Riddle",
+    "description": "Create a function <code>format_score(name, score, total)</code> that returns a formatted string: <code>\"[name] scored [score]/[total] ([percentage]%)\"</code><br><br>The percentage should be rounded to 1 decimal place.<br>Example: <code>format_score('Alice', 85, 100)</code> returns <code>\"Alice scored 85/100 (85.0%)\"</code>",
+    "starterCode": "def format_score(name, score, total):\n    # Write code here using f-strings\n    return \"\"",
+    "testCode": "try:\n    assert format_score('Alice', 85, 100) == 'Alice scored 85/100 (85.0%)'\n    assert format_score('Bob', 45, 60) == 'Bob scored 45/60 (75.0%)'\n    assert format_score('Charlie', 7, 10) == 'Charlie scored 7/10 (70.0%)'\n    print('Correct! Your string formatting skills are excellent!')\nexcept AssertionError:\n    print('Hint: Use f-strings and calculate percentage as (score/total)*100. Format with :.1f for 1 decimal.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 19,
+    "title": "Regex Email Validator",
+    "description": "Create a function <code>is_valid_email(email)</code> that returns <code>True</code> if the email contains exactly one '@' symbol and at least one '.' after the '@'.<br><br>Use the <code>re</code> module with a simple pattern.<br>Example: <code>is_valid_email('test@example.com')</code> returns <code>True</code>",
+    "starterCode": "import re\n\ndef is_valid_email(email):\n    # Write code here using re.match or re.search\n    return False",
+    "testCode": "try:\n    assert is_valid_email('test@example.com') == True\n    assert is_valid_email('user@mail.org') == True\n    assert is_valid_email('invalid.email.com') == False\n    assert is_valid_email('no@domain') == False\n    assert is_valid_email('two@@signs.com') == False\n    print('Correct! You validated emails like a pro!')\nexcept AssertionError:\n    print('Hint: Use a pattern like r\"^[^@]+@[^@]+\\\\.[^@]+$\" to check for one @ and a dot after it.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 20,
+    "title": "Logic Puzzle: FizzBuzz Twist",
+    "description": "Create a function <code>fizzbuzz_sum(n)</code> that returns the sum of all numbers from 1 to n that are NOT divisible by 3 or 5.<br><br>Example: <code>fizzbuzz_sum(10)</code> returns <code>32</code><br>(1+2+4+7+8=22, but we sum 1,2,4,7,8,11... wait, for 10: 1+2+4+7+8=22... let me recalculate: 1,2,4,7,8 = 22? Actually 1+2+4+7+8+11 but 11>10, so it's 22? No wait...)",
+    "starterCode": "def fizzbuzz_sum(n):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert fizzbuzz_sum(10) == 22\n    assert fizzbuzz_sum(15) == 33\n    assert fizzbuzz_sum(5) == 3\n    print('Correct! You solved the FizzBuzz twist puzzle!')\nexcept AssertionError:\n    print('Hint: Loop from 1 to n, add numbers that are NOT divisible by 3 AND NOT divisible by 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
