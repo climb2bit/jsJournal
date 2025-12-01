@@ -137,6 +137,6 @@
     "title": "Logic Puzzle: FizzBuzz Twist",
     "description": "Create a function <code>fizzbuzz_sum(n)</code> that returns the sum of all numbers from 1 to n that are NOT divisible by 3 or 5.<br><br>Example: <code>fizzbuzz_sum(10)</code> returns <code>32</code><br>(1+2+4+7+8=22, but we sum 1,2,4,7,8,11... wait, for 10: 1+2+4+7+8=22... let me recalculate: 1,2,4,7,8 = 22? Actually 1+2+4+7+8+11 but 11>10, so it's 22? No wait...)",
     "starterCode": "def fizzbuzz_sum(n):\n    # Write code here\n    return 0",
-    "testCode": "try:\n    assert fizzbuzz_sum(10) == 22\n    assert fizzbuzz_sum(15) == 33\n    assert fizzbuzz_sum(5) == 3\n    print('Correct! You solved the FizzBuzz twist puzzle!')\nexcept AssertionError:\n    print('Hint: Loop from 1 to n, add numbers that are NOT divisible by 3 AND NOT divisible by 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "testCode": "try:\n    assert fizzbuzz_sum(10) == 22\n    assert fizzbuzz_sum(15) == 60\n    assert fizzbuzz_sum(5) == 7\n    print('Correct! You solved the FizzBuzz twist puzzle!')\nexcept AssertionError:\n    print('Hint: Loop from 1 to n, add numbers that are NOT divisible by 3 AND NOT divisible by 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
