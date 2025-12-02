@@ -116,7 +116,7 @@
     "title": "Lambda Sort Challenge",
     "description": "Create a function <code>sort_by_last_char(words)</code> that takes a list of strings and returns them sorted by their last character using a lambda function.<br><br>Example: <code>sort_by_last_char(['apple', 'banana', 'cherry'])</code> should return <code>['apple', 'banana', 'cherry']</code> (sorted by 'e', 'a', 'y')",
     "starterCode": "def sort_by_last_char(words):\n    # Write code here using sorted() and lambda\n    return words",
-    "testCode": "try:\n    assert sort_by_last_char(['apple', 'banana', 'cherry']) == ['banana', 'apple', 'cherry']\n    assert sort_by_last_char(['dog', 'cat', 'bird']) == ['bird', 'cat', 'dog']\n    assert sort_by_last_char(['xyz', 'abc', 'def']) == ['abc', 'def', 'xyz']\n    print('Correct! You mastered lambda sorting!')\nexcept AssertionError:\n    print('Hint: Use sorted(words, key=lambda x: x[-1]) to sort by last character.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+    "testCode": "try:\n    assert sort_by_last_char(['apple', 'banana', 'cherry']) == ['banana', 'apple', 'cherry']\n    assert sort_by_last_char(['dog', 'cat', 'bird']) == ['bird', 'dog', 'cat']\n    assert sort_by_last_char(['xyz', 'abc', 'def']) == ['abc', 'def', 'xyz']\n    print('Correct! You mastered lambda sorting!')\nexcept AssertionError:\n    print('Hint: Use sorted(words, key=lambda x: x[-1]) to sort by last character.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   },
   {
     "id": 18,
@@ -138,5 +138,40 @@
     "description": "Create a function <code>fizzbuzz_sum(n)</code> that returns the sum of all numbers from 1 to n that are NOT divisible by 3 or 5.<br><br>Example: <code>fizzbuzz_sum(10)</code> returns <code>32</code><br>(1+2+4+7+8=22, but we sum 1,2,4,7,8,11... wait, for 10: 1+2+4+7+8=22... let me recalculate: 1,2,4,7,8 = 22? Actually 1+2+4+7+8+11 but 11>10, so it's 22? No wait...)",
     "starterCode": "def fizzbuzz_sum(n):\n    # Write code here\n    return 0",
     "testCode": "try:\n    assert fizzbuzz_sum(10) == 22\n    assert fizzbuzz_sum(15) == 60\n    assert fizzbuzz_sum(5) == 7\n    print('Correct! You solved the FizzBuzz twist puzzle!')\nexcept AssertionError:\n    print('Hint: Loop from 1 to n, add numbers that are NOT divisible by 3 AND NOT divisible by 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 26,
+    "title": "The Palindrome Checker Puzzle 🧩",
+    "description": "A **palindrome** is a word, phrase, or sequence that reads the same forwards as backwards (like 'madam' or 'racecar'). <br>The function <code>is_palindrome</code> takes a string <code>text</code>. You must return <code>True</code> if the string is a palindrome, and <code>False</code> otherwise. <br>Hint: Ignore spaces and capitalization when checking! For example, 'A man a plan a canal Panama' is a palindrome.",
+    "starterCode": "import string\n\ndef is_palindrome(text):\n    # Write code here\n    # HINT: Pre-process the string (remove spaces, convert to lowercase)\n    return False",
+    "testCode": "try:\n    assert is_palindrome(\"racecar\") == True\n    assert is_palindrome(\"hello\") == False\n    assert is_palindrome(\"A man a plan a canal Panama\") == True\n    assert is_palindrome(\"No 'x' in Nixon\") == True\n    print('Correct! Your palindrome logic is flawless!')\nexcept AssertionError:\n    print('Incorrect. Remember to clean the string first: make it lowercase and remove all non-alphanumeric characters (letters and numbers) before checking the reverse.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 27,
+    "title": "Vowel Counter and Replacer 🔠",
+    "description": "The function <code>vowel_puzzle</code> takes a string <code>word</code>. <br>You need to return a **tuple** containing two items: <br>1. The **total count** of vowels (a, e, i, o, u, case-insensitive) in the word. <br>2. A new string where **every vowel** is replaced by the asterisk character <code>'*'</code>.",
+    "starterCode": "def vowel_puzzle(word):\n    # Write code here\n    # HINT: Use a loop or list comprehension and combine string methods\n    vowel_count = 0\n    new_string = \"\"\n    return (vowel_count, new_string)",
+    "testCode": "try:\n    assert vowel_puzzle(\"Education\") == (5, \"*d*c*t**n\")\n    assert vowel_puzzle(\"Python\") == (1, \"Pyth*n\")\n    assert vowel_puzzle(\"AEIOU\") == (5, \"*****\")\n    print('Correct! You handled both counting and replacement!')\nexcept AssertionError:\n    print('Incorrect. Did you return a tuple? Check your vowel counting and ensure every vowel is replaced by *.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 28,
+    "title": "Perfect Square List Comprehension 🟩",
+    "description": "The function <code>get_perfect_squares</code> takes two integers, <code>start</code> and <code>end</code>. <br>Your task is to use a single **list comprehension** to generate a list of all numbers between <code>start</code> and <code>end</code> (inclusive) that are **perfect squares**. <br>A perfect square is an integer that is the square of another integer (e.g., 1, 4, 9, 16...). <br>Hint: You may need to use the <code>math.sqrt()</code> function and check if the result is an integer.",
+    "starterCode": "import math\n\ndef get_perfect_squares(start, end):\n    # Write code here using a single list comprehension\n    return []",
+    "testCode": "try:\n    assert get_perfect_squares(1, 20) == [1, 4, 9, 16]\n    assert get_perfect_squares(25, 50) == [25, 36, 49]\n    assert get_perfect_squares(10, 15) == []\n    print('Correct! Your list comprehension is perfectly concise!')\nexcept AssertionError:\n    print('Incorrect. Inside your list comprehension, use math.sqrt(n) and check if it is exactly equal to its integer conversion (int(math.sqrt(n))).')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 29,
+    "title": "Prime Number Detector 🌟",
+    "description": "A **prime number** is a whole number greater than 1 whose only divisors are 1 and itself. <br>The function <code>is_prime</code> takes an integer <code>n</code>. You must return <code>True</code> if <code>n</code> is a prime number, and <code>False</code> otherwise. <br>This requires careful **looping** and **conditional logic** to check for divisors up to the square root of <code>n</code>.",
+    "starterCode": "def is_prime(n):\n    # Write code here using loops and conditionals\n    # Handle edge cases for n <= 1 first\n    return False",
+    "testCode": "try:\n    assert is_prime(13) == True\n    assert is_prime(4) == False\n    assert is_prime(2) == True\n    assert is_prime(1) == False\n    assert is_prime(97) == True\n    print('Correct! Your prime number detector passed all tests!')\nexcept AssertionError:\n    print('Incorrect. Remember to handle n <= 1. For n > 1, loop from 2 up to sqrt(n) and check for divisibility (n % i == 0).')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 30,
+    "title": "String Sorter by Length (Lambda/Sort) 📏",
+    "description": "The function <code>sort_by_length</code> takes a list of strings, <code>words</code>. <br>You must return a new list where the strings are sorted from **shortest to longest**. <br>This is a perfect puzzle for using the built-in <code>sorted()</code> function combined with a **lambda function** as the <code>key</code> argument.",
+    "starterCode": "def sort_by_length(words):\n    # Write code here using sorted() and a lambda function\n    return []",
+    "testCode": "try:\n    input_list = [\"apple\", \"cat\", \"banana\", \"dog\"]\n    expected_output = [\"cat\", \"dog\", \"apple\", \"banana\"]\n    assert sort_by_length(input_list) == expected_output\n    assert sort_by_length([\"z\", \"zzzz\", \"zzz\"]) == [\"z\", \"zzz\", \"zzzz\"]\n    print('Correct! Your sorting key is perfectly tuned!')\nexcept AssertionError:\n    print('Incorrect. Use the sorted() function and set the key to a lambda that returns the length of the string (len).')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
