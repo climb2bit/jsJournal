@@ -173,5 +173,40 @@
     "description": "The function <code>sort_by_length</code> takes a list of strings, <code>words</code>. <br>You must return a new list where the strings are sorted from **shortest to longest**. <br>This is a perfect puzzle for using the built-in <code>sorted()</code> function combined with a **lambda function** as the <code>key</code> argument.",
     "starterCode": "def sort_by_length(words):\n    # Write code here using sorted() and a lambda function\n    return []",
     "testCode": "try:\n    input_list = [\"apple\", \"cat\", \"banana\", \"dog\"]\n    expected_output = [\"cat\", \"dog\", \"apple\", \"banana\"]\n    assert sort_by_length(input_list) == expected_output\n    assert sort_by_length([\"z\", \"zzzz\", \"zzz\"]) == [\"z\", \"zzz\", \"zzzz\"]\n    print('Correct! Your sorting key is perfectly tuned!')\nexcept AssertionError:\n    print('Incorrect. Use the sorted() function and set the key to a lambda that returns the length of the string (len).')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 31,
+    "title": "Secret Code Decoder",
+    "description": "Create a function that decodes a secret message! Each letter should shift backward by 3 positions in the alphabet. For example: 'd' becomes 'a', 'z' becomes 'w'.<br><br>Write a function <code>decode_message(text)</code> that takes a string and returns the decoded version. Only shift lowercase letters, keep everything else the same.<br><br><strong>Example:</strong> <code>decode_message('khoor')</code> should return <code>'hello'</code>",
+    "starterCode": "def decode_message(text):\n    # Write code here\n    return text",
+    "testCode": "try:\n    assert decode_message('khoor') == 'hello', 'Test 1 failed'\n    assert decode_message('sxccoh') == 'puzzle', 'Test 2 failed'\n    assert decode_message('def123') == 'abc123', 'Test 3 failed'\n    assert decode_message('cab') == 'xyz', 'Test 4 failed'\n    print('Correct! You cracked the code!')\nexcept AssertionError as e:\n    print(f'Not quite right. Hint: Use a loop and check if each character is a letter. Remember the alphabet wraps around!')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 32,
+    "title": "Number Pattern Finder",
+    "description": "Write a function that finds all numbers in a list that appear more than once AND are even.<br><br>Create <code>find_duplicate_evens(numbers)</code> that returns a <strong>set</strong> of all even numbers that appear at least twice in the list.<br><br><strong>Example:</strong> <code>find_duplicate_evens([2, 3, 4, 2, 5, 4, 6, 3, 4])</code> should return <code>{2, 4}</code> because 2 and 4 are even and appear multiple times.",
+    "starterCode": "def find_duplicate_evens(numbers):\n    # Write code here\n    return set()",
+    "testCode": "try:\n    assert find_duplicate_evens([2, 3, 4, 2, 5, 4, 6, 3, 4]) == {2, 4}, 'Test 1 failed'\n    assert find_duplicate_evens([1, 3, 5, 7]) == set(), 'Test 2 failed'\n    assert find_duplicate_evens([8, 8, 9, 9, 10]) == {8}, 'Test 3 failed'\n    assert find_duplicate_evens([2, 2, 2, 4, 4, 6]) == {2, 4}, 'Test 4 failed'\n    print('Correct! You found all the duplicate evens!')\nexcept AssertionError:\n    print('Incorrect. Hint: Count how many times each number appears, then check if it is even and appears more than once. Use a set for the result!')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 33,
+    "title": "Shopping Cart Calculator",
+    "description": "You're building a shopping cart system! Create a function that calculates the total cost with a twist.<br><br>Write <code>calculate_total(cart)</code> where cart is a dictionary like <code>{'apple': 3, 'banana': 2}</code> with item names as keys and quantities as values.<br><br>Prices: apple=$2, banana=$1, orange=$3, grape=$4<br>Special rule: If the total quantity of items is 5 or more, apply a 10% discount!<br><br><strong>Example:</strong> <code>calculate_total({'apple': 2, 'banana': 1})</code> returns <code>5.0</code> (no discount)",
+    "starterCode": "def calculate_total(cart):\n    # Write code here\n    return 0.0",
+    "testCode": "try:\n    assert calculate_total({'apple': 2, 'banana': 1}) == 5.0, 'Test 1 failed'\n    assert calculate_total({'apple': 3, 'banana': 2}) == 9.0, 'Test 2 failed'\n    assert calculate_total({'orange': 2, 'grape': 1}) == 10.0, 'Test 3 failed'\n    assert abs(calculate_total({'apple': 3, 'banana': 3}) - 8.1) < 0.01, 'Test 4 failed'\n    assert calculate_total({}) == 0.0, 'Test 5 failed'\n    print('Correct! Your shopping cart works perfectly!')\nexcept AssertionError:\n    print('Incorrect. Hint: First calculate total items and total cost, then apply 10% discount (multiply by 0.9) if total items >= 5.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 34,
+    "title": "Tuple Treasure Hunt",
+    "description": "You have a list of treasure coordinates as tuples: <code>[(x1, y1), (x2, y2), ...]</code><br><br>Write <code>find_treasures_in_zone(treasures, zone)</code> that returns how many treasures are inside a rectangular zone.<br><br>The zone is a tuple: <code>(min_x, min_y, max_x, max_y)</code><br>A treasure at <code>(x, y)</code> is inside if: <code>min_x <= x <= max_x</code> AND <code>min_y <= y <= max_y</code><br><br><strong>Example:</strong> <code>find_treasures_in_zone([(1,1), (3,3), (5,5)], (0,0,4,4))</code> returns <code>2</code>",
+    "starterCode": "def find_treasures_in_zone(treasures, zone):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert find_treasures_in_zone([(1,1), (3,3), (5,5)], (0,0,4,4)) == 2, 'Test 1 failed'\n    assert find_treasures_in_zone([(0,0), (2,2), (4,4)], (1,1,3,3)) == 1, 'Test 2 failed'\n    assert find_treasures_in_zone([(10,10), (20,20)], (0,0,5,5)) == 0, 'Test 3 failed'\n    assert find_treasures_in_zone([(2,3), (3,2), (2,2)], (2,2,3,3)) == 3, 'Test 4 failed'\n    print('Correct! You found all the treasures in the zone!')\nexcept AssertionError:\n    print('Incorrect. Hint: Loop through each treasure tuple, unpack the x and y coordinates, and check if both are within the zone boundaries.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 35,
+    "title": "Word Frequency Puzzle",
+    "description": "Create a function that analyzes text and finds interesting patterns!<br><br>Write <code>analyze_words(text)</code> that returns a dictionary with:<br>- Keys: words that appear at least 2 times<br>- Values: the count of how many times each word appears<br><br>Rules: Convert to lowercase, ignore punctuation (keep only letters and spaces), split by spaces.<br><br><strong>Example:</strong> <code>analyze_words('Hello world! Hello there, world.')</code> returns <code>{'hello': 2, 'world': 2}</code>",
+    "starterCode": "def analyze_words(text):\n    # Write code here\n    return {}",
+    "testCode": "try:\n    result1 = analyze_words('Hello world! Hello there, world.')\n    assert result1 == {'hello': 2, 'world': 2}, f'Test 1 failed: got {result1}'\n    result2 = analyze_words('Python is fun! Python is great! Is it?')\n    assert result2 == {'python': 2, 'is': 3}, f'Test 2 failed: got {result2}'\n    result3 = analyze_words('one two three')\n    assert result3 == {}, f'Test 3 failed: got {result3}'\n    result4 = analyze_words('test TEST test')\n    assert result4 == {'test': 3}, f'Test 4 failed: got {result4}'\n    print('Correct! Your word analyzer works brilliantly!')\nexcept AssertionError as e:\n    print(f'Incorrect. Hint: First clean the text by keeping only letters and spaces, convert to lowercase, split into words, count each word, then filter to keep only words with count >= 2.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
