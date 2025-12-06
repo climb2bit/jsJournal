@@ -208,5 +208,40 @@
     "description": "Create a function that analyzes text and finds interesting patterns!<br><br>Write <code>analyze_words(text)</code> that returns a dictionary with:<br>- Keys: words that appear at least 2 times<br>- Values: the count of how many times each word appears<br><br>Rules: Convert to lowercase, ignore punctuation (keep only letters and spaces), split by spaces.<br><br><strong>Example:</strong> <code>analyze_words('Hello world! Hello there, world.')</code> returns <code>{'hello': 2, 'world': 2}</code>",
     "starterCode": "def analyze_words(text):\n    # Write code here\n    return {}",
     "testCode": "try:\n    result1 = analyze_words('Hello world! Hello there, world.')\n    assert result1 == {'hello': 2, 'world': 2}, f'Test 1 failed: got {result1}'\n    result2 = analyze_words('Python is fun! Python is great! Is it?')\n    assert result2 == {'python': 2, 'is': 3}, f'Test 2 failed: got {result2}'\n    result3 = analyze_words('one two three')\n    assert result3 == {}, f'Test 3 failed: got {result3}'\n    result4 = analyze_words('test TEST test')\n    assert result4 == {'test': 3}, f'Test 4 failed: got {result4}'\n    print('Correct! Your word analyzer works brilliantly!')\nexcept AssertionError as e:\n    print(f'Incorrect. Hint: First clean the text by keeping only letters and spaces, convert to lowercase, split into words, count each word, then filter to keep only words with count >= 2.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 36,
+    "title": "Rotate a List by N Steps",
+    "description": "Write a function <code>rotate_list(nums, n)</code> that rotates a list to the right by <code>n</code> steps.<br>Example: <code>rotate_list([1,2,3,4], 1)</code> → <code>[4,1,2,3]</code>.",
+    "starterCode": "def rotate_list(nums, n):\n    # Write code here\n    return nums",
+    "testCode": "try:\n    assert rotate_list([1,2,3,4], 1) == [4,1,2,3]\n    assert rotate_list([10,20,30,40,50], 2) == [40,50,10,20,30]\n    print(\"Correct! The list rotates smoothly.\")\nexcept AssertionError:\n    print(\"Incorrect. Remember: rotation wraps items around from the end to the front.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 37,
+    "title": "Count Word Frequency in a Sentence",
+    "description": "Create a function <code>word_frequency(text)</code> that returns a dictionary mapping each word to how many times it appears.<br>The check should be case-insensitive.<br>Example: <code>\"Hello hello world\"</code> → <code>{'hello': 2, 'world': 1}</code>.",
+    "starterCode": "def word_frequency(text):\n    # Write code here\n    return {}",
+    "testCode": "try:\n    assert word_frequency(\"Hello hello world\") == {\"hello\": 2, \"world\": 1}\n    assert word_frequency(\"Cat dog cat DOG\") == {\"cat\": 2, \"dog\": 2}\n    print(\"Correct! Word counts look great.\")\nexcept AssertionError:\n    print(\"Incorrect. Make sure your words are lowercased and counted correctly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 38,
+    "title": "Find All Dates in Text (Regex Challenge)",
+    "description": "Write <code>extract_dates(text)</code> that returns all occurrences of dates in the format <code>DD/MM/YYYY</code> using regex.<br>Example: <code>\"Today is 01/01/2024 and tomorrow is 02/01/2024\"</code> → <code>[\"01/01/2024\", \"02/01/2024\"]</code>.",
+    "starterCode": "def extract_dates(text):\n    # Write code here\n    return []",
+    "testCode": "import re\ntry:\n    assert extract_dates(\"Party on 12/05/2024!\") == [\"12/05/2024\"]\n    assert extract_dates(\"No dates here!\") == []\n    assert extract_dates(\"Start 01/01/2023 end 31/12/2023\") == [\"01/01/2023\", \"31/12/2023\"]\n    print(\"Correct! Your regex found the dates.\")\nexcept AssertionError:\n    print(\"Incorrect. Make sure the pattern matches DD/MM/YYYY exactly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 39,
+    "title": "Find the First Date After Today",
+    "description": "Write <code>next_future_date(dates)</code> where <code>dates</code> is a list of date strings in <code>YYYY-MM-DD</code> format.<br>Your function should return the first date that is strictly after today.<br><i>Use the <code>datetime</code> module!</i>",
+    "starterCode": "def next_future_date(dates):\n    # Write code here\n    return None",
+    "testCode": "from datetime import datetime\ntry:\n    today = datetime.today().date()\n    sample = [(today.replace(day=today.day+1)).isoformat()]\n    assert next_future_date(sample) == sample[0]\n    assert next_future_date([\"1999-01-01\", \"2000-01-01\"]) == None\n    print(\"Correct! You handled datetime comparisons.\")\nexcept AssertionError:\n    print(\"Incorrect. Compare dates as real datetime.date objects.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 40,
+    "title": "Mini Sorting Algorithm — Selection Sort",
+    "description": "Implement <code>selection_sort(nums)</code> that returns a **new list** sorted using the Selection Sort algorithm.<br>This is a classic algorithm puzzle!",
+    "starterCode": "def selection_sort(nums):\n    # Write code here\n    return nums",
+    "testCode": "try:\n    assert selection_sort([4,1,3,2]) == [1,2,3,4]\n    assert selection_sort([10,9,8]) == [8,9,10]\n    assert selection_sort([]) == []\n    print(\"Correct! You implemented Selection Sort.\")\nexcept AssertionError:\n    print(\"Incorrect. Make sure you\u0027re returning a sorted NEW list, not modifying incorrectly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
   }
 ]
