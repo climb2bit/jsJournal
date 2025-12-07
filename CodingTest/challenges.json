@@ -243,5 +243,40 @@
     "description": "Implement <code>selection_sort(nums)</code> that returns a **new list** sorted using the Selection Sort algorithm.<br>This is a classic algorithm puzzle!",
     "starterCode": "def selection_sort(nums):\n    # Write code here\n    return nums",
     "testCode": "try:\n    assert selection_sort([4,1,3,2]) == [1,2,3,4]\n    assert selection_sort([10,9,8]) == [8,9,10]\n    assert selection_sort([]) == []\n    print(\"Correct! You implemented Selection Sort.\")\nexcept AssertionError:\n    print(\"Incorrect. Make sure you\u0027re returning a sorted NEW list, not modifying incorrectly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 41,
+    "title": "Party Invitation List",
+    "description": "You're organizing a birthday party! Write a function <code>filter_guests(guests, min_age)</code> that takes a list of dictionaries (each with 'name' and 'age' keys) and returns a list of names of guests who are at least <code>min_age</code> years old.<br><br>Example: <code>filter_guests([{'name': 'Alice', 'age': 10}, {'name': 'Bob', 'age': 8}], 9)</code> should return <code>['Alice']</code>",
+    "starterCode": "def filter_guests(guests, min_age):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert filter_guests([{'name': 'Alice', 'age': 10}, {'name': 'Bob', 'age': 8}, {'name': 'Charlie', 'age': 12}], 9) == ['Alice', 'Charlie']\n    assert filter_guests([{'name': 'Diana', 'age': 7}, {'name': 'Eve', 'age': 6}], 8) == []\n    assert filter_guests([{'name': 'Frank', 'age': 15}], 10) == ['Frank']\n    print('Correct! You filtered the guest list perfectly!')\nexcept AssertionError:\n    print('Not quite right. Check if you are comparing ages correctly and adding the right names to your list.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 42,
+    "title": "Secret Message Decoder",
+    "description": "Create a function <code>decode_message(message)</code> that takes a string and returns a new string with every vowel (a, e, i, o, u) replaced by an asterisk (*). Make it case-insensitive!<br><br>Example: <code>decode_message(\"Hello World\")</code> should return <code>\"H*ll* W*rld\"</code>",
+    "starterCode": "def decode_message(message):\n    # Write code here\n    return \"\"",
+    "testCode": "try:\n    assert decode_message(\"Hello World\") == \"H*ll* W*rld\"\n    assert decode_message(\"Python is awesome\") == \"Pyth*n *s *w*s*m*\"\n    assert decode_message(\"AEIOU\") == \"*****\"\n    assert decode_message(\"xyz\") == \"xyz\"\n    print('Correct! You cracked the secret code!')\nexcept AssertionError:\n    print('Hmm, not quite. Remember to replace both uppercase and lowercase vowels with asterisks.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 43,
+    "title": "Shopping Cart Calculator",
+    "description": "Write a function <code>calculate_total(cart)</code> that takes a dictionary where keys are item names and values are tuples of (price, quantity). Return the total cost.<br><br>Example: <code>calculate_total({'apple': (1.5, 3), 'banana': (0.5, 5)})</code> should return <code>7.0</code> (because 1.5*3 + 0.5*5 = 7.0)",
+    "starterCode": "def calculate_total(cart):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert calculate_total({'apple': (1.5, 3), 'banana': (0.5, 5)}) == 7.0\n    assert calculate_total({'cookie': (2.0, 10), 'milk': (3.5, 2)}) == 27.0\n    assert calculate_total({}) == 0\n    assert calculate_total({'pencil': (0.25, 8)}) == 2.0\n    print('Correct! You calculated the shopping total perfectly!')\nexcept AssertionError:\n    print('Not quite right. Make sure you multiply price by quantity for each item and sum them all up.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 44,
+    "title": "Days Until Birthday",
+    "description": "Create a function <code>days_until(month, day)</code> that calculates how many days from today (December 7, 2025) until a given date in 2026. Return the number of days.<br><br>Example: <code>days_until(1, 1)</code> should return <code>25</code> (from Dec 7, 2025 to Jan 1, 2026)",
+    "starterCode": "from datetime import datetime\n\ndef days_until(month, day):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert days_until(1, 1) == 25\n    assert days_until(12, 25) == 383\n    assert days_until(6, 15) == 190\n    assert days_until(3, 10) == 93\n    print('Correct! You are a time-calculating master!')\nexcept AssertionError:\n    print('Hmm, check your date calculation. Remember to calculate from December 7, 2025 to the given date in 2026.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 45,
+    "title": "Email Validator",
+    "description": "Write a function <code>is_valid_email(email)</code> that uses regex to check if an email is valid. It should have characters before @, then @, then a domain with at least one dot.<br><br>Example: <code>is_valid_email(\"test@example.com\")</code> should return <code>True</code>, but <code>is_valid_email(\"invalid.email\")</code> should return <code>False</code>",
+    "starterCode": "import re\n\ndef is_valid_email(email):\n    # Write code here\n    return False",
+    "testCode": "try:\n    assert is_valid_email(\"test@example.com\") == True\n    assert is_valid_email(\"user@domain.co.uk\") == True\n    assert is_valid_email(\"invalid.email\") == False\n    assert is_valid_email(\"@example.com\") == False\n    assert is_valid_email(\"test@domain\") == False\n    assert is_valid_email(\"hello@world.net\") == True\n    print('Correct! You are an email validation expert!')\nexcept AssertionError:\n    print('Not quite. Check that your regex requires: something before @, then @, then a domain with a dot.')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
