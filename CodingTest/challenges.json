@@ -278,5 +278,40 @@
     "description": "Write a function <code>is_valid_email(email)</code> that uses regex to check if an email is valid. It should have characters before @, then @, then a domain with at least one dot.<br><br>Example: <code>is_valid_email(\"test@example.com\")</code> should return <code>True</code>, but <code>is_valid_email(\"invalid.email\")</code> should return <code>False</code>",
     "starterCode": "import re\n\ndef is_valid_email(email):\n    # Write code here\n    return False",
     "testCode": "try:\n    assert is_valid_email(\"test@example.com\") == True\n    assert is_valid_email(\"user@domain.co.uk\") == True\n    assert is_valid_email(\"invalid.email\") == False\n    assert is_valid_email(\"@example.com\") == False\n    assert is_valid_email(\"test@domain\") == False\n    assert is_valid_email(\"hello@world.net\") == True\n    print('Correct! You are an email validation expert!')\nexcept AssertionError:\n    print('Not quite. Check that your regex requires: something before @, then @, then a domain with a dot.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 46,
+    "title": "Robot Maze Navigator",
+    "description": "You're programming a robot to escape a maze! The robot can move <code>forward</code>, <code>turn_left</code>, or <code>turn_right</code>. Given a list of moves like <code>['forward', 'forward', 'turn_right', 'forward']</code>, calculate how many steps forward the robot took before escaping.<br><br>💡 <strong>Hint:</strong> Only count 'forward' moves!",
+    "starterCode": "def count_forward_moves(moves):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert count_forward_moves(['forward', 'forward', 'turn_right', 'forward']) == 3\n    assert count_forward_moves(['turn_left', 'forward', 'forward', 'turn_right', 'forward', 'forward']) == 4\n    assert count_forward_moves(['turn_left', 'turn_right']) == 0\n    print('🎉 Correct! Your robot successfully counted its moves!')\nexcept AssertionError:\n    print('❌ Oops! Check your counting logic. Remember to only count forward moves.')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
+  },
+  {
+    "id": 47,
+    "title": "Secret Message Decoder",
+    "description": "A spy sent you a coded message! Every letter in the message is shifted by 3 positions in the alphabet. For example, 'a' becomes 'd', 'b' becomes 'e', and 'z' wraps around to 'c'.<br><br>Write a function that decodes the message by shifting each letter <strong>back</strong> by 3 positions. Only decode lowercase letters; leave spaces and other characters unchanged.<br><br>🕵️ <strong>Example:</strong> <code>decode_message('khoor')</code> should return <code>'hello'</code>",
+    "starterCode": "def decode_message(coded_message):\n    # Write code here\n    return ''",
+    "testCode": "try:\n    assert decode_message('khoor') == 'hello'\n    assert decode_message('sbarq') == 'party'\n    assert decode_message('khoor zruog') == 'hello world'\n    assert decode_message('dbc') == 'abc'\n    print('🔓 Correct! You cracked the secret code!')\nexcept AssertionError:\n    print('🔒 Not quite! Remember: shift each letter back by 3. Don\\'t forget about wrapping (like z→w)!')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
+  },
+  {
+    "id": 48,
+    "title": "Birthday Countdown Calculator",
+    "description": "Create a function that calculates how many days are left until someone's birthday! Given today's date and a birthday (both as strings in format <code>'YYYY-MM-DD'</code>), return the number of days remaining.<br><br>⚠️ <strong>Tricky part:</strong> If the birthday already passed this year, calculate days until next year's birthday!<br><br>💡 <strong>Hint:</strong> Use the <code>datetime</code> module!",
+    "starterCode": "from datetime import datetime\n\ndef days_until_birthday(today, birthday):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert days_until_birthday('2024-01-01', '2024-01-15') == 14\n    assert days_until_birthday('2024-06-15', '2024-06-15') == 0\n    assert days_until_birthday('2024-12-25', '2024-01-05') == 11\n    print('🎂 Correct! Your birthday countdown works perfectly!')\nexcept AssertionError:\n    print('🎈 Almost there! Check: Did you handle birthdays that already passed this year?')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
+  },
+  {
+    "id": 49,
+    "title": "Treasure Hunt Grid",
+    "description": "You're on a treasure hunt on a 5x5 grid! You start at position <code>(0, 0)</code> (top-left corner). Given a list of directions like <code>['right', 'down', 'right', 'down']</code>, calculate your final position as a tuple <code>(row, col)</code>.<br><br>📍 <strong>Directions:</strong><br>• 'up' means row - 1<br>• 'down' means row + 1<br>• 'left' means col - 1<br>• 'right' means col + 1<br><br>⚠️ Stay within the 5x5 grid (0-4 for both row and col)!",
+    "starterCode": "def find_treasure_position(directions):\n    # Write code here\n    return (0, 0)",
+    "testCode": "try:\n    assert find_treasure_position(['right', 'right', 'down']) == (1, 2)\n    assert find_treasure_position(['down', 'down', 'right', 'right']) == (2, 2)\n    assert find_treasure_position(['up', 'left']) == (0, 0)\n    assert find_treasure_position(['right', 'right', 'right', 'right', 'right']) == (0, 4)\n    print('🗺️ Correct! You found the treasure location!')\nexcept AssertionError:\n    print('❌ Not quite! Check: Are you starting at (0,0)? Are you staying within grid bounds (0-4)?')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
+  },
+  {
+    "id": 50,
+    "title": "Pattern Detective",
+    "description": "Can you spot the pattern? Write a function that finds the pattern in a sequence and returns the next number!<br><br>🔍 <strong>Examples:</strong><br>• <code>[2, 4, 6, 8]</code> → next is <code>10</code> (adding 2)<br>• <code>[1, 2, 4, 7]</code> → next is <code>11</code> (adding 1, then 2, then 3, then 4)<br>• <code>[5, 10, 20, 40]</code> → next is <code>80</code> (multiplying by 2)<br><br>Your function should work for these three types of patterns:<br>1. <strong>Constant addition</strong> (like +2, +2, +2...)<br>2. <strong>Increasing addition</strong> (like +1, +2, +3, +4...)<br>3. <strong>Multiplication</strong> (like ×2, ×2, ×2...)",
+    "starterCode": "def find_next_number(sequence):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert find_next_number([2, 4, 6, 8]) == 10\n    assert find_next_number([1, 2, 4, 7, 11]) == 16\n    assert find_next_number([5, 10, 20, 40]) == 80\n    assert find_next_number([3, 6, 9, 12]) == 15\n    print('🔎 Correct! You\\'re a pattern detective master!')\nexcept AssertionError:\n    print('🤔 Hmm, not quite! Try checking: Is it constant addition? Increasing addition? Or multiplication?')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
   }
 ]
