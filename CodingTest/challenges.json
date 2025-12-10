@@ -313,5 +313,40 @@
     "description": "Can you spot the pattern? Write a function that finds the pattern in a sequence and returns the next number!<br><br>🔍 <strong>Examples:</strong><br>• <code>[2, 4, 6, 8]</code> → next is <code>10</code> (adding 2)<br>• <code>[1, 2, 4, 7]</code> → next is <code>11</code> (adding 1, then 2, then 3, then 4)<br>• <code>[5, 10, 20, 40]</code> → next is <code>80</code> (multiplying by 2)<br><br>Your function should work for these three types of patterns:<br>1. <strong>Constant addition</strong> (like +2, +2, +2...)<br>2. <strong>Increasing addition</strong> (like +1, +2, +3, +4...)<br>3. <strong>Multiplication</strong> (like ×2, ×2, ×2...)",
     "starterCode": "def find_next_number(sequence):\n    # Write code here\n    return 0",
     "testCode": "try:\n    assert find_next_number([2, 4, 6, 8]) == 10\n    assert find_next_number([1, 2, 4, 7, 11]) == 16\n    assert find_next_number([5, 10, 20, 40]) == 80\n    assert find_next_number([3, 6, 9, 12]) == 15\n    print('🔎 Correct! You\\'re a pattern detective master!')\nexcept AssertionError:\n    print('🤔 Hmm, not quite! Try checking: Is it constant addition? Increasing addition? Or multiplication?')\nexcept Exception as e:\n    print(f'⚠️ Error: {e}')"
+  },
+  {
+    "id": 51,
+    "title": "Robot Treasure Hunt",
+    "description": "Help the robot collect treasures! Given a list of treasure values, write a function that uses a loop to count how many treasures are worth more than 10 coins.<br><br>Example: <code>count_valuable_treasures([5, 15, 8, 20, 12])</code> should return <code>3</code> (because 15, 20, and 12 are > 10)",
+    "starterCode": "def count_valuable_treasures(treasures):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert count_valuable_treasures([5, 15, 8, 20, 12]) == 3\n    assert count_valuable_treasures([3, 7, 9]) == 0\n    assert count_valuable_treasures([11, 12, 13, 14]) == 4\n    print('Correct! Your robot found all the valuable treasures!')\nexcept AssertionError:\n    print('Not quite! Remember to count treasures worth MORE than 10 coins.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 52,
+    "title": "Maze Navigator",
+    "description": "Program a robot to navigate a maze! The robot receives a list of directions like <code>['N', 'E', 'S', 'W']</code> (North, East, South, West). Count how many times the robot turns East ('E').<br><br>Example: <code>count_east_moves(['N', 'E', 'E', 'S', 'E'])</code> should return <code>3</code>",
+    "starterCode": "def count_east_moves(directions):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert count_east_moves(['N', 'E', 'E', 'S', 'E']) == 3\n    assert count_east_moves(['N', 'S', 'W']) == 0\n    assert count_east_moves(['E', 'E', 'E', 'E']) == 4\n    print('Correct! Your robot navigated the maze perfectly!')\nexcept AssertionError:\n    print('Oops! Count how many times E appears in the directions list.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 53,
+    "title": "Power-Up Dictionary",
+    "description": "Create a game inventory system! Given a dictionary of power-ups with their quantities, write a function that returns the total number of all power-ups combined.<br><br>Example: <code>total_powerups({'speed': 3, 'shield': 5, 'jump': 2})</code> should return <code>10</code>",
+    "starterCode": "def total_powerups(inventory):\n    # Write code here\n    return 0",
+    "testCode": "try:\n    assert total_powerups({'speed': 3, 'shield': 5, 'jump': 2}) == 10\n    assert total_powerups({'coin': 7}) == 7\n    assert total_powerups({}) == 0\n    print('Correct! You counted all the power-ups!')\nexcept AssertionError:\n    print('Try adding up all the values in the dictionary using a loop!')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 54,
+    "title": "Secret Code Multiplier",
+    "description": "Decode secret numbers! Write a function that takes a list of numbers and returns a new list where each number is multiplied by 3.<br><br>Example: <code>multiply_secret_code([2, 5, 8])</code> should return <code>[6, 15, 24]</code>",
+    "starterCode": "def multiply_secret_code(numbers):\n    # Write code here\n    return []",
+    "testCode": "try:\n    assert multiply_secret_code([2, 5, 8]) == [6, 15, 24]\n    assert multiply_secret_code([1, 2, 3, 4]) == [3, 6, 9, 12]\n    assert multiply_secret_code([]) == []\n    print('Correct! You cracked the secret code!')\nexcept AssertionError:\n    print('Hint: Create a new list and multiply each number by 3 using a loop.')\nexcept Exception as e:\n    print(f'Error: {e}')"
+  },
+  {
+    "id": 55,
+    "title": "Robot Battery Check",
+    "description": "Check if the robot has enough battery! Given a dictionary with robot names as keys and battery percentages as values, write a function that returns a list of robot names that have MORE than 50% battery.<br><br>Example: <code>charged_robots({'RoboA': 75, 'RoboB': 30, 'RoboC': 60})</code> should return <code>['RoboA', 'RoboC']</code>",
+    "starterCode": "def charged_robots(battery_levels):\n    # Write code here\n    return []",
+    "testCode": "try:\n    result = charged_robots({'RoboA': 75, 'RoboB': 30, 'RoboC': 60})\n    assert sorted(result) == ['RoboA', 'RoboC']\n    assert charged_robots({'Bot1': 20, 'Bot2': 40}) == []\n    assert sorted(charged_robots({'X': 51, 'Y': 99, 'Z': 50})) == ['X', 'Y']\n    print('Correct! You found all the charged robots!')\nexcept AssertionError:\n    print('Remember: only include robots with MORE than 50% battery (not equal to 50).')\nexcept Exception as e:\n    print(f'Error: {e}')"
   }
 ]
