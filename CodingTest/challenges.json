@@ -383,5 +383,40 @@
     "description": "Create a treasure hunt game! Write <code>find_treasures(grid, steps)</code>.<br><br>You start at position (0,0) in the top-left. The grid contains:<br>• 0 = empty space<br>• 1 = treasure (collect it!)<br>• -1 = trap (game over, return collected treasures so far)<br><br>Steps is a string like \"RRDD\" (Right, Down, Left, Up).<br>Return the total number of treasures collected before the end or hitting a trap.<br><br>Example: <code>grid = [[0,1,1],[1,0,-1]]</code>, steps=\"RRD\" collects 2 treasures",
     "starterCode": "def find_treasures(grid, steps):\n    # Write code here\n    # Start at position (0, 0)\n    # Follow each step in the string\n    # Count treasures (1) and stop at traps (-1)\n    return 0",
     "testCode": "try:\n    grid1 = [[0, 1, 1], [1, 0, -1]]\n    assert find_treasures(grid1, 'RR') == 2, 'Should collect 2 treasures going right'\n    assert find_treasures(grid1, 'DRRD') == 1, 'Should collect 1 treasure before trap'\n    grid2 = [[1, 1], [1, 1]]\n    assert find_treasures(grid2, 'RDL') == 3, 'Should collect 3 treasures'\n    grid3 = [[0, -1], [1, 1]]\n    assert find_treasures(grid3, 'R') == 0, 'Should stop at trap immediately'\n    print('Correct! You are a treasure hunting master! 💎')\nexcept AssertionError as e:\n    print(f'Hint: {e}')\nexcept Exception as e:\n    print(f'Error: {e}. Make sure to track position and check grid values!')"
+  },
+  {
+    "id": 61,
+    "title": "2D Robot Tracker",
+    "description": "Your robot starts at coordinate <code>(0, 0)</code>. It receives a string of moves: <b>\"N\"</b> (North/Up +1 y), <b>\"S\"</b> (South/Down -1 y), <b>\"E\"</b> (East/Right +1 x), <b>\"W\"</b> (West/Left -1 x).<br>Write a function <code>track_robot</code> that loops through the string and returns the final <code>(x, y)</code> position as a tuple.",
+    "starterCode": "def track_robot(moves):\n    x = 0\n    y = 0\n    # Write a loop to check each character in 'moves'\n    # Update x or y based on the direction\n    return (x, y)",
+    "testCode": "try:\n    assert track_robot(\"NNN\") == (0, 3)\n    assert track_robot(\"NE\") == (1, 1)\n    assert track_robot(\"WS\") == (-1, -1)\n    assert track_robot(\"NESW\") == (0, 0)\n    print(\"Correct! You successfully tracked the robot's path.\")\nexcept AssertionError:\n    print(\"Incorrect. Remember: N adds to y, S subtracts y, E adds to x, W subtracts x.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 62,
+    "title": "RPG Shop Total",
+    "description": "You have a dictionary of items and their prices: <code>{\"sword\": 150, \"potion\": 50}</code>.<br>Write a function <code>buy_items</code> that takes two arguments: the <b>shop dictionary</b> and a <b>list of items</b> you want to buy (e.g., <code>[\"sword\", \"potion\"]</code>).<br>Return the total cost.",
+    "starterCode": "def buy_items(shop, shopping_list):\n    total = 0\n    # Loop through shopping_list\n    # Add the price from the 'shop' dictionary to 'total'\n    return total",
+    "testCode": "try:\n    shop = {\"apple\": 10, \"book\": 50, \"toy\": 100}\n    assert buy_items(shop, [\"apple\", \"apple\"]) == 20\n    assert buy_items(shop, [\"book\", \"toy\"]) == 150\n    assert buy_items(shop, []) == 0\n    print(\"Correct! Calculations match the receipt.\")\nexcept KeyError:\n    print(\"Error: You tried to buy an item that isn't in the shop!\")\nexcept AssertionError:\n    print(\"Incorrect. Make sure you are summing the prices correctly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 63,
+    "title": "Inventory Compressor",
+    "description": "You gathered loot, but your bag is messy! You have a list of tuples like <code>(\"wood\", 1)</code>, <code>(\"wood\", 3)</code>, <code>(\"stone\", 2)</code>.<br>Write a function <code>compress_inventory</code> that combines duplicates. Return a <b>dictionary</b> where keys are item names and values are the <b>total quantity</b>.",
+    "starterCode": "def compress_inventory(items):\n    result = {}\n    # Loop through the list of tuples (name, count)\n    # If name is in result, add to it. If not, create it.\n    return result",
+    "testCode": "try:\n    loot = [(\"wood\", 2), (\"stone\", 1), (\"wood\", 5), (\"stone\", 10)]\n    output = compress_inventory(loot)\n    assert output[\"wood\"] == 7\n    assert output[\"stone\"] == 11\n    assert len(output) == 2\n    print(\"Correct! Your inventory is now organized.\")\nexcept AssertionError:\n    print(\"Incorrect. Check your math logic. 'wood' should sum to 7.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 64,
+    "title": "Secret Code Breaker",
+    "description": "You intercepted two messages represented as sets of numbers. The secret key is the numbers that appear in <b>both</b> sets (intersection).<br>Write a function <code>find_key</code> that accepts two sets and returns a new set containing only the common numbers.",
+    "starterCode": "def find_key(set_a, set_b):\n    # Write code here\n    # Return the intersection of the two sets\n    return set()",
+    "testCode": "try:\n    s1 = {1, 2, 3, 4}\n    s2 = {3, 4, 5, 6}\n    result = find_key(s1, s2)\n    assert result == {3, 4}\n    assert find_key({1, 2}, {8, 9}) == set()\n    print(\"Correct! You cracked the code.\")\nexcept AssertionError:\n    print(\"Incorrect. Try using the '&' operator or .intersection() method.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
+  },
+  {
+    "id": 65,
+    "title": "Class: Game Character",
+    "description": "Create a class called <code>Player</code>.<br>1. <code>__init__</code> takes <code>name</code> and sets <code>self.hp</code> to 100.<br>2. Add a method <code>take_damage(amount)</code> that subtracts <code>amount</code> from <code>self.hp</code>.",
+    "starterCode": "class Player:\n    def __init__(self, name):\n        # Initialize name and hp\n        pass\n\n    def take_damage(self, amount):\n        # Decrease hp by amount\n        pass",
+    "testCode": "try:\n    p = Player(\"Hero\")\n    assert p.hp == 100\n    p.take_damage(30)\n    assert p.hp == 70\n    p.take_damage(70)\n    assert p.hp == 0\n    print(\"Correct! The logic for your Game Character is solid.\")\nexcept AttributeError:\n    print(\"Incorrect. Did you name the variables 'hp' and methods 'take_damage'?\")\nexcept AssertionError:\n    print(\"Incorrect. Check if take_damage is subtracting correctly.\")\nexcept Exception as e:\n    print(f\"Error: {e}\")"
   }
 ]
