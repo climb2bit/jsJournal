@@ -69,8 +69,9 @@ Please output a raw JSON list. Each item must follow this exact schema:
         ```
 
 **TARGET AUDIENCE:**
-*   Python experience: [INSERT EXPERIENCE LEVEL, e.g., Beginner, 1 Year, etc.]
-*   Topics to cover: [INSERT TOPIC, e.g., Lists, Loops, Strings, Math]
+* Python experience: 2 and half years
+* Topics to cover: loop, condition, OOP, class and instance, 2D array.
+* Kid likes game-related topics, e.g., RPG game, minecraft, robot-navigation in maze, CodeCombat
 
 **TASK:**
 Generate [INSERT NUMBER] new challenges starting from ID [INSERT START ID].
